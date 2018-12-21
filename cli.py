@@ -188,16 +188,26 @@ if __name__ == "__main__":
 
 
     w0 = Window("Windows 0")
-    w = Window("Windows 1")
-    h = VBox()
-    h.add_window(w0,1)
-    h.add_window(w,1)
-    tab.set_window(h)
-
+    w1 = Window("Windows 1")
     w2 = Window("Windows 2")
+    w3 = Window("Windows 3")
+    w4 = Window("Windows 4")
+    w5 = Window("Windows 5")
+    w6 = Window("Windows 6")
+
+    v = VBox()
+    v.add_window(w0,1)
+
+    h = HBox()
+    h.add_window(w4,1)
+    h.add_window(w5,1)
+
+    v.add_window(h,1)
+
+    tab.set_window(v)
+
     tab2.set_window(w2)
 
-    w3 = Window("Windows 3")
     tab3.set_window(w3)
 
     p = Process(target=cli.run)

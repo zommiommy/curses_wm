@@ -29,19 +29,26 @@ class VBox():
         """Refresh all the sub windows"""
         [win._refresh() for win  in self.window_list]
 
-    def resize(self, width, height):
-        """Resize method if the class is a child."""
-        # Update to the new dimension
-        self.height, self.width = height, width
+    def _resize_routine(self, new_x = 0, new_y = 0):
         # Normalize the weights
         weight_total = sum(self.weight_list, 0)
         weights = list(map(lambda x: int(self.height * x / weight_total),self.weight_list))
         # update the sub windows dimension and move them
-        y = 0
+        y = new_y
         for win, weight in zip(self.window_list, weights):
             win.resize(self.width, weight)
-            win._move_window(0, y)
+            win._move_window(new_x, y)
             y += weight
+
+    def resize(self, width, height):
+        """Resize method if the class is a child."""
+        # Update to the new dimension
+        self.height, self.width = height, width
+        self._resize_routine()
+
+    def _move_window(self, new_x, new_y):
+        """Move the windows so that the upper left corner is at new_x and new_y"""
+        self._resize_routine(new_x, new_y)
 
     def _resize(self):
         """Resize method if the class is the root of the tab. This set the height and width to the max of the father"""
