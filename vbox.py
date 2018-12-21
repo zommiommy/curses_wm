@@ -33,6 +33,8 @@ class VBox():
         # Normalize the weights
         weight_total = sum(self.weight_list, 0)
         weights = list(map(lambda x: int(self.height * x / weight_total),self.weight_list))
+        
+        weights[0] += (self.height - sum(weights, 0))
         # update the sub windows dimension and move them
         y = new_y
         for win, weight in zip(self.window_list, weights):

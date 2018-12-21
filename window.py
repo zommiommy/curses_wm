@@ -16,7 +16,7 @@ class Window():
     def _initialize_window(self,):
         self.win = curses.newwin(1,1, 0, 0)
         #self.win.attron(curses.color_pair(1))
-        self.win.timeout(100)
+        self.win.timeout(0)
         self.win.keypad(1)
         self.win.clear()
         self._resize()

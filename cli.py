@@ -3,14 +3,16 @@
 import sys
 import curses
 from tab import Tab
-from time import sleep
-from window import Window
 from hbox import HBox
 from vbox import VBox
+from time import sleep
+from window import Window
+from threading import Thread
 from curses import KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP, KEY_RESIZE
 
-class CLI():
+class CLI(Thread):
     def __init__(self):
+        Thread.__init__(self)
         self.stdscr = None
         self.tab_list = []
         self.tab_index = 0
@@ -38,6 +40,8 @@ class CLI():
         curses.curs_set(0)
         # Enable the use of KEY_UP and special keys as variables (keypad mode)
         self.stdscr.keypad(True)
+        # Make getkey non blocking
+        self.stdscr.timeout(0)
         # add colour
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
@@ -210,6 +214,7 @@ if __name__ == "__main__":
 
     tab3.set_window(w3)
 
-    p = Process(target=cli.run)
-    p.start()
+    cli.start()
+
+    w0.draw_text(0,0,"Testerino")
     

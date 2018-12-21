@@ -33,6 +33,8 @@ class HBox():
         # Normalize the weights
         weight_total = sum(self.weight_list, 0)
         weights = list(map(lambda x: int(self.width * x / weight_total),self.weight_list))
+
+        weights[0] += (self.width - sum(weights, 0))
         # update the sub windows dimension and move them
         x = new_x
         for win, weight in zip(self.window_list, weights):
