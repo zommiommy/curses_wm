@@ -1,5 +1,5 @@
 
-from winodow import Window
+from window import Window
 
 class HBox():
     """Class to put multiple windows on weighted columns on the same row."""
@@ -12,6 +12,7 @@ class HBox():
     def _start(self):
         """Initialize all the subclasses"""
         [win._start() for win in self.window_list]
+        self._resize()
 
     def _set_father_windows(self, stdscr):
         """Set the father windows."""
@@ -38,7 +39,7 @@ class HBox():
         # update the sub windows dimension and move them
         x = 0
         for win, weight in zip(self.window_list, weights):
-            win._resize(weight, self.height)
+            win.resize(weight, self.height)
             win._move_window(x,0)
             x += weight
 
@@ -47,7 +48,7 @@ class HBox():
         # Get the new dimension
         self.height, self.width = self.father_windows.getmaxyx()
         # Update the sub
-        self.resize(self.width, self.height)
+        self.resize(self.width, self.height - 1)
 
     def _erase(self):
         """Erase all the sub windows"""

@@ -5,6 +5,8 @@ import curses
 from tab import Tab
 from time import sleep
 from window import Window
+from hbox import HBox
+from vbox import VBox
 from curses import KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP, KEY_RESIZE
 
 class CLI():
@@ -184,8 +186,13 @@ if __name__ == "__main__":
     tab3 = Tab("Threads")
     cli.add_tab(tab3)
 
+
+    w0 = Window("Windows 0")
     w = Window("Windows 1")
-    tab.set_window(w)
+    h = VBox()
+    h.add_window(w0,1)
+    h.add_window(w,1)
+    tab.set_window(h)
 
     w2 = Window("Windows 2")
     tab2.set_window(w2)
@@ -195,6 +202,4 @@ if __name__ == "__main__":
 
     p = Process(target=cli.run)
     p.start()
-    #sleep(1)
-    #w.draw_text(0,0,"Testino")
     
