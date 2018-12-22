@@ -7,6 +7,7 @@ from hbox import HBox
 from vbox import VBox
 from time import sleep
 from window import Window
+from screen import Screen
 from textbox import TextBox
 from threading import Thread
 from curses import KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP, KEY_RESIZE
@@ -14,7 +15,7 @@ from curses import KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP, KEY_RESIZE
 class CLI(Thread):
     def __init__(self):
         Thread.__init__(self)
-        self.stdscr = None
+        self.screen = Screen()
         self.tab_list = []
         self.tab_index = 0
         self.key_handlers = {
@@ -23,105 +24,59 @@ class CLI(Thread):
             KEY_LEFT:   self._move_left,
             KEY_RIGHT:  self._move_right
         }
-
-    def _start(self):
-        """Initialize the curses and the terminal."""
-        # Setup the screen
-        self.stdscr = curses.initscr()
-        # Enable colors
-        try:
-            curses.start_color()
-        except:
-            pass
-        # Disable key display on screen
-        curses.noecho()
-        # Enable Callbacks for keys so they act as interrupts
-        curses.cbreak()
-        # Disable the cursor visibility
-        curses.curs_set(0)
-        # Enable the use of KEY_UP and special keys as variables (keypad mode)
-        self.stdscr.keypad(True)
-        # Make getkey non blocking
-        self.stdscr.nodelay(True)
-        # add colour
-        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
-        curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_CYAN)
-        # save the current dim
-        self.height, self.width = self.stdscr.getmaxyx()
-
-    def _clean_up_terminal(self):
-        """reset the terminal to the previous settings."""
-        if self.stdscr:
-            # Disable the Keypad mode
-            self.stdscr.keypad(False)
-            # Renable caracters echoing
-            curses.echo()
-            # Disable the interrupts
-            curses.nocbreak()
-            # Restore the terimnal to it's orginial operating mode
-            curses.endwin()
-
-    def __del__(self):
-        """On destruction clear the terminal"""
-        self._clean_up_terminal()
-
-    def run(self):
-        """wrapper so the exceptions can be displayed"""
-        self._start()
-        self._initialize_tabs()
-        self._start_all_windows()
-        try:
-            self._run()
-        except KeyboardInterrupt:
-            self._clean_up_terminal()
-        finally:
-            self._clean_up_terminal()
-
     def _quit(self):
-        self._clean_up_terminal()
+        self.clean_up_terminal()
         sys.exit(0)
         
 
-    def _pad_to_width(self, string):
-        """Pad a string with spaces till the string is as long as the screen"""
-        return string  + " " * (self.width - len(string) - 2)
-
     def _initialize_tabs(self):
-        """Pass the reference of the screen to all the tabs"""
+        """Pass the reference of the screen to all the tabs and start them"""
         [tab._set_father_windows(self.stdscr) for tab in self.tab_list]
-
-    def _start_all_windows(self):
-        """Create all the window of all the tabs"""
         [tab._start() for tab in self.tab_list]
+
+
+    def _set_error_attr(self, tab, index):
+        if index == self.tab_index:
+            if tab.error_state:
+                # Highlighted
+                self.stdscr.attrset(curses.color_pair(4))
+            else:
+                # Highlighted error
+                self.stdscr.attrset(curses.color_pair(3))
+            # add bold    
+            self.stdscr.attron(curses.A_STANDOUT)
+        else:
+            if tab.error_state:
+                # Error
+                self.stdscr.attrset(curses.color_pair(2))
+            else:
+                # Normal
+                self.stdscr.attrset(curses.color_pair(1))
+
+    def _print_space(self, x, y):
+        self.stdscr.attrset(curses.A_NORMAL)
+        self.stdscr.addstr(y, x, " ")
+        return x + 1
+
+    def _print_tab(self, x, y, tab, index):
+        # print the initial space
+        x = self._print_space(x, y)
+        # Set the style of the tile
+        self._set_error_attr(tab, index)
+        # print it
+        self.stdscr.addstr(y, x, tab.title)
+        # reset the style
+        self.stdscr.attrset(curses.A_NORMAL)
+        # Return the updated writing position
+        return x + len(tab.title)
+
 
     def _print_status_bar(self):
         """Print the status bar."""
-        titles = [tab.title for tab in self.tab_list]
-        string = " ".join(titles)
         last_line = self.height - 1
-
-        l = 0
-        self.stdscr.attrset(curses.color_pair(1)) 
-        for title in titles[ : self.tab_index]:
-            self.stdscr.addstr(last_line, l, " " + title)
-            l += len(title) + 1
-
-        self.stdscr.addstr(last_line, l, " " )
-        l += 1
-        self.stdscr.attrset(curses.color_pair(2)) 
-        self.stdscr.attron(curses.A_STANDOUT)
-
-        title = titles[self.tab_index]
-        self.stdscr.addstr(last_line, l, title)
-        l += len(title)
-
-        self.stdscr.attrset(curses.color_pair(1)) 
-
-        for title in titles[self.tab_index + 1:]:
-            self.stdscr.addstr(last_line, l, " " + title)
-            l += len(title) + 1
-        self.stdscr.attrset(curses.A_NORMAL)
+        x = 0
+        for index, tab in enumerate(self.tab_list):
+            x = self._print_tab(x, last_line, tab, index)
 
     def _move_left(self):
         if self.tab_index == 0:
@@ -146,12 +101,13 @@ class CLI(Thread):
         # Update?
         self._refresh()
         self.tab_list[self.tab_index]._refresh()
+    
 
     def _erase(self):
         """Clear the screen"""
         if self.stdscr:
             self.stdscr.erase()
-            [tab._erase() for tab in self.tab_list]
+            self.tab_list[self.tab_index]._erase()
 
     def _refresh(self):
         """Refresh the screen and the tab on sight"""
@@ -178,6 +134,22 @@ class CLI(Thread):
             x = self.stdscr.getch()
             if x in self.key_handlers:
                 self.key_handlers[x]()
+
+    def run(self):
+        """wrapper so the exceptions can be displayed"""
+        # Start the cli
+        self.stdscr = self.screen.start()
+        # save the current dim
+        self.height, self.width = self.stdscr.getmaxyx()
+        # Start all the tabs
+        self._initialize_tabs()
+        try:
+            self._run()
+        except KeyboardInterrupt:
+            self.screen.clean_up_terminal()
+        finally:
+            self.screen.clean_up_terminal()
+
 
     
 
@@ -226,5 +198,7 @@ if __name__ == "__main__":
     i = 0
     while True:
         w0.set_text(0,0,"Time Enlapsed %d"%i)
+        tab.set_error_state(i % 2 == 0)
+        tab2.set_error_state(i % 2 == 1)
         i += 1
         sleep(1)

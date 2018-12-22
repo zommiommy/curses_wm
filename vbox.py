@@ -33,7 +33,7 @@ class VBox():
         # Normalize the weights
         weight_total = sum(self.weight_list, 0)
         weights = list(map(lambda x: int(self.height * x / weight_total),self.weight_list))
-        
+        # Correct rounding errors by increasing the first window
         weights[0] += (self.height - sum(weights, 0))
         # update the sub windows dimension and move them
         y = new_y

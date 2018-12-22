@@ -6,6 +6,7 @@ class Tab():
     def __init__(self, title: str):
         self.title = title
         self.window = None
+        self.error_state = False
 
     def _start(self):
         if self.window:
@@ -15,6 +16,9 @@ class Tab():
         self.father_windows = stdscr
         if self.window:
             self.window._set_father_windows(self.father_windows)
+
+    def set_error_state(self, error_state : bool):
+        self.error_state = error_state
 
     def set_window(self, window: Window):
         if self.window:

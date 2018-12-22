@@ -69,7 +69,7 @@ class Window():
 
     def _draw_border(self):
         """Draw borders around the window."""
-        self.win.attrset(curses.color_pair(2)) 
+        self.win.attrset(curses.color_pair(3)) 
         self.win.border(0,0,0,0,0,0,0,0)
         self.win.attrset(curses.A_NORMAL)
 
