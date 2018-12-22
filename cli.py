@@ -7,6 +7,7 @@ from hbox import HBox
 from vbox import VBox
 from time import sleep
 from window import Window
+from textbox import TextBox
 from threading import Thread
 from curses import KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP, KEY_RESIZE
 
@@ -41,7 +42,7 @@ class CLI(Thread):
         # Enable the use of KEY_UP and special keys as variables (keypad mode)
         self.stdscr.keypad(True)
         # Make getkey non blocking
-        self.stdscr.timeout(0)
+        self.stdscr.nodelay(True)
         # add colour
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
@@ -72,6 +73,8 @@ class CLI(Thread):
         self._start_all_windows()
         try:
             self._run()
+        except KeyboardInterrupt:
+            self._clean_up_terminal()
         finally:
             self._clean_up_terminal()
 
@@ -121,23 +124,25 @@ class CLI(Thread):
         self.stdscr.attrset(curses.A_NORMAL)
 
     def _move_left(self):
+        if self.tab_index == 0:
+            return
         # Clear the tab
         self._erase()
         self.tab_list[self.tab_index]._erase()
         # Update the index
         self.tab_index -= 1
-        self.tab_index = max([0,self.tab_index])
         # Update
         self._refresh()
         self.tab_list[self.tab_index]._refresh()
     
     def _move_right(self):
+        if self.tab_index == len(self.tab_list) - 1:
+            return
         # Clear the tab
         self._erase()
         self.tab_list[self.tab_index]._erase()
         # Update the index
         self.tab_index += 1
-        self.tab_index = min([len(self.tab_list) - 1,self.tab_index])
         # Update?
         self._refresh()
         self.tab_list[self.tab_index]._refresh()
@@ -177,7 +182,6 @@ class CLI(Thread):
     
 
 if __name__ == "__main__":
-    from multiprocessing import Process
 
     cli = CLI()
 
@@ -191,22 +195,24 @@ if __name__ == "__main__":
     cli.add_tab(tab3)
 
 
-    w0 = Window("Windows 0")
+    w0 = TextBox("Timer")
     w1 = Window("Windows 1")
     w2 = Window("Windows 2")
     w3 = Window("Windows 3")
-    w4 = Window("Windows 4")
+    w4 = TextBox("TextBox 4")
     w5 = Window("Windows 5")
     w6 = Window("Windows 6")
 
+    w4.set_text(2,2,"Test Text 3")
+    
     v = VBox()
-    v.add_window(w0,1)
+    v.add_window(w0,weight=1)
 
     h = HBox()
-    h.add_window(w4,1)
-    h.add_window(w5,1)
+    h.add_window(w4,weight=1)
+    h.add_window(w5,weight=1)
 
-    v.add_window(h,1)
+    v.add_window(h,weight=2)
 
     tab.set_window(v)
 
@@ -215,6 +221,10 @@ if __name__ == "__main__":
     tab3.set_window(w3)
 
     cli.start()
-
-    w0.draw_text(0,0,"Testerino")
     
+
+    i = 0
+    while True:
+        w0.set_text(0,0,"Time Enlapsed %d"%i)
+        i += 1
+        sleep(1)
