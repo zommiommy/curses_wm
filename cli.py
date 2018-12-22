@@ -24,6 +24,7 @@ class CLI(Thread):
             KEY_LEFT:   self._move_left,
             KEY_RIGHT:  self._move_right
         }
+
     def _quit(self):
         self.clean_up_terminal()
         sys.exit(0)
@@ -53,14 +54,11 @@ class CLI(Thread):
                 # Normal
                 self.stdscr.attrset(curses.color_pair(1))
 
-    def _print_space(self, x, y):
-        self.stdscr.attrset(curses.A_NORMAL)
-        self.stdscr.addstr(y, x, " ")
-        return x + 1
-
     def _print_tab(self, x, y, tab, index):
         # print the initial space
-        x = self._print_space(x, y)
+        self.stdscr.attrset(curses.A_NORMAL)
+        self.stdscr.addstr(y, x, " ")
+        x += 1
         # Set the style of the tile
         self._set_error_attr(tab, index)
         # print it
@@ -79,35 +77,28 @@ class CLI(Thread):
             x = self._print_tab(x, last_line, tab, index)
 
     def _move_left(self):
+        """Move the tab_index to the next on the left and display that tab."""
         if self.tab_index == 0:
             return
-        # Clear the tab
         self._erase()
-        self.tab_list[self.tab_index]._erase()
-        # Update the index
         self.tab_index -= 1
-        # Update
         self._refresh()
-        self.tab_list[self.tab_index]._refresh()
     
     def _move_right(self):
+        """Move the tab_index to the next on the right and display that tab."""
         if self.tab_index == len(self.tab_list) - 1:
             return
-        # Clear the tab
         self._erase()
-        self.tab_list[self.tab_index]._erase()
-        # Update the index
         self.tab_index += 1
-        # Update?
         self._refresh()
-        self.tab_list[self.tab_index]._refresh()
     
 
     def _erase(self):
         """Clear the screen"""
         if self.stdscr:
             self.stdscr.erase()
-            self.tab_list[self.tab_index]._erase()
+            # Need to erase all the windows else there will be resize borders on other tabs
+            [tab._erase() for tab in self.tab_list]
 
     def _refresh(self):
         """Refresh the screen and the tab on sight"""
