@@ -42,17 +42,13 @@ class Window():
         """Return the current dimension of the window as (width, height)."""
         return (self.width, self.height)
 
-    def _set_father_windows(self, stdscr):
-        """Set the father window."""
-        self.father_windows = stdscr
-
     def _start(self):
         """Create the window, set it up, clean it and draw the result."""
         self.win = curses.newwin(1,1, 0, 0)
         self.win.nodelay(True)
         self.win.keypad(1)
         self.win.clear()
-        self._resize()
+        self.resize(1,1)
         self._refresh()
 
     def get_title(self):
@@ -92,11 +88,6 @@ class Window():
         """Cancel all the window."""
         if self.win:
             self.win.erase()
-
-    def _resize(self):
-        """Resize adapting to the father container."""
-        height, width = self.father_windows.getmaxyx()
-        self.resize(width, height - 1)
 
     def resize(self, width, height):
         """Resize using fixed width and height."""

@@ -12,11 +12,6 @@ class Tab():
         if self.window:
             self.window._start()
 
-    def _set_father_windows(self, stdscr):
-        self.father_windows = stdscr
-        if self.window:
-            self.window._set_father_windows(self.father_windows)
-
     def set_error_state(self, error_state : bool):
         self.error_state = error_state
 
@@ -35,9 +30,9 @@ class Tab():
         if self.window:
             self.window._refresh()
 
-    def _resize(self):
+    def resize(self, width : int, height : int):
         if self.window:
-            self.window._resize()
+            self.window.resize(width, height)
 
     def _erase(self):
         if self.window:

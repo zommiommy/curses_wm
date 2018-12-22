@@ -32,7 +32,6 @@ class CLI(Thread):
 
     def _initialize_tabs(self):
         """Pass the reference of the screen to all the tabs and start them"""
-        [tab._set_father_windows(self.stdscr) for tab in self.tab_list]
         [tab._start() for tab in self.tab_list]
 
 
@@ -110,7 +109,7 @@ class CLI(Thread):
         """Erase the screen, call the resize method of all the tabs and update the CLI dimension"""
         self.height, self.width = self.stdscr.getmaxyx()
         self._erase()
-        [tab._resize() for tab in self.tab_list]
+        [tab.resize(self.width, self.height - 1) for tab in self.tab_list]
         self._refresh()
         
     def add_tab(self, tab: Tab):
@@ -134,6 +133,8 @@ class CLI(Thread):
         self.height, self.width = self.stdscr.getmaxyx()
         # Start all the tabs
         self._initialize_tabs()
+        # Draw all the tabs
+        self._resize()
         try:
             self._run()
         except KeyboardInterrupt:

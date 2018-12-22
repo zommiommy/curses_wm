@@ -12,13 +12,6 @@ class VBox():
     def _start(self):
         """Initialize all the subclasses"""
         [win._start() for win in self.window_list]
-        self._resize()
-
-    def _set_father_windows(self, stdscr):
-        """Set the father windows."""
-        self.father_windows = stdscr
-        if self.window_list:
-            [win._set_father_windows(self.father_windows) for win in self.window_list]
 
     def add_window(self, win: Window, weight: int):
         """Add a window to the Hbox"""
@@ -51,13 +44,6 @@ class VBox():
     def _move_window(self, new_x, new_y):
         """Move the windows so that the upper left corner is at new_x and new_y"""
         self._resize_routine(new_x, new_y)
-
-    def _resize(self):
-        """Resize method if the class is the root of the tab. This set the height and width to the max of the father"""
-        # Get the new dimension
-        self.height, self.width = self.father_windows.getmaxyx()
-        # Update the sub
-        self.resize(self.width, self.height - 1)
 
     def _erase(self):
         """Erase all the sub windows"""
