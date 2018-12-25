@@ -41,7 +41,7 @@ class Graph(Window):
     def _print_axis(self):
         maxi = self.legend_format.format(number=self.maximum)
         mini = self.legend_format.format(number=self.minimum)
-        midl = int((self.maximum - self.minimum) / 2)
+        midl = (self.maximum - self.minimum) / 2
         midl = self.legend_format.format(number=midl)
 
         with GraphLegendColour(self.win): 
@@ -68,10 +68,10 @@ class Graph(Window):
 
     def _draw_graph(self):
         with GraphColour(self.win):
-            delta =  self.maximum - self.minimum
+            delta = self.maximum - self.minimum
             
             if delta != 0:
-                coeff = self.get_last_row() / delta
+                coeff = (self.get_last_row() - 1) / delta
 
                 for x, point in enumerate(self.points[:self.width]):
                     y = self.get_last_row() - int((point - self.minimum) * coeff)

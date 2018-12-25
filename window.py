@@ -26,7 +26,7 @@ class Window():
         if error :
             return False
 
-        writtable_window = (self.get_last_col() + 1) - x
+        writtable_window = (self.get_last_col() + 1) - x - 2
 
         #for line in string.split("\n"):
         #    y += 1
