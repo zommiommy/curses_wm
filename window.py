@@ -1,5 +1,6 @@
 
 import curses
+from colours import TextColour, BorderColour
 
 class Window():
     """Base class to display a window. This class is ment to be extendend
@@ -13,28 +14,25 @@ class Window():
         self.win = None
         self.width = 0
         self.height = 0
-    
-    def draw_ch(self, x : int, y : int, string : str) -> bool:
-        """Display a text on the windows, respecting the window dimensions.
-        Return if the drawn was sucessfully inside the window or else."""
-        # Check if the text is in the bound of the window
-        if x >= self.width - 2 or y > self.height:
-            return False
-        self.win.addch(y + 1, x + 1, string)
-        return True
 
     def draw_text(self, x : int, y : int, string : str) -> bool:
         """Display a text on the windows, respecting the window dimensions.
         Return if the drawn was sucessfully inside the window or else."""
         # Check if the text is in the bound of the window
-        if x >= self.width - 2 or y > self.height:
+        error = x > (self.get_last_col() + 1)
+        error |= x < self.get_first_col()
+        error |= y > self.get_last_row()
+        error |= y < self.get_first_row()
+        if error :
             return False
 
-        for line in string.split("\n"):
-            y += 1
-            if y >= self.height:
-                return False
-            self.win.addnstr(y, x + 1, line, self.width - 2 - x)
+        writtable_window = (self.get_last_col() + 1) - x
+
+        #for line in string.split("\n"):
+        #    y += 1
+        #    if y > self.get_last_row():
+        #        return False
+        self.win.addnstr(y, x, string, writtable_window)
         # This line would do the same but for some reason
         # It messes up the corner of all the windows
         # self.win.insstr(y + 1, x + 1, string)
@@ -44,14 +42,37 @@ class Window():
         """Return the current dimension of the window as (width, height)."""
         return (self.width, self.height)
 
+    def get_first_row(self):
+        """Return the index to write on the first line of the window."""
+        return 1
+
+    def get_mid_row(self):
+        """Return the index of the middle row"""
+        return int(self.get_last_row() / 2)
+
+    def get_last_row(self):
+        """Return the index to write on the last line of the window."""
+        # exlude the first
+        return self.height - 2
+
+    def get_first_col(self):
+        """Return the index to write on the first col of the window."""
+        return 1
+
+    def get_mid_col(self):
+        """Return the index of the middle col"""
+        return int(self.get_last_col() / 2)
+
+    def get_last_col(self):
+        """Return the index to write on the last line of the window."""
+        return self.width - 2
+
     def _start(self):
         """Create the window, set it up, clean it and draw the result."""
         self.win = curses.newwin(1,1, 0, 0)
         self.win.nodelay(True)
         self.win.keypad(1)
         self.win.clear()
-        self.resize(1,1)
-        self._refresh()
 
     def get_title(self):
         """Get the title of the window."""
@@ -67,13 +88,13 @@ class Window():
 
     def _draw_border(self):
         """Draw borders around the window."""
-        self.win.attrset(curses.color_pair(3)) 
-        self.win.border(0,0,0,0,0,0,0,0)
-        self.win.attrset(curses.A_NORMAL)
+        with BorderColour(self.win):
+            self.win.border(0,0,0,0,0,0,0,0)
 
     def _draw_title(self):
         """Draw ther title on the top of the window."""
-        self.draw_text(0,-1,self.title)
+        if self.width > 1:
+            self.win.addnstr(0, 1, self.title, self.width - 1)
 
     def _refresh(self):
         """Method to be overwritten by the subclasses to add the content."""

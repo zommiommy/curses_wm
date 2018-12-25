@@ -2,6 +2,7 @@
 
 import sys
 import curses
+import colours
 from tab import Tab
 from hbox import HBox
 from vbox import VBox
@@ -39,32 +40,24 @@ class CLI(Thread):
     def _set_error_attr(self, tab, index):
         if index == self.tab_index:
             if tab.error_state:
-                # Highlighted
-                self.stdscr.attrset(curses.color_pair(4))
+                return colours.HighlightErrorColour
             else:
-                # Highlighted error
-                self.stdscr.attrset(curses.color_pair(3))
-            # add bold    
-            self.stdscr.attron(curses.A_STANDOUT)
+                return colours.HighlightColour
         else:
             if tab.error_state:
-                # Error
-                self.stdscr.attrset(curses.color_pair(2))
+                return colours.ErrorColour
             else:
-                # Normal
-                self.stdscr.attrset(curses.color_pair(1))
+                return colours.TextColour
 
     def _print_tab(self, x, y, tab, index):
         # print the initial space
-        self.stdscr.attrset(curses.A_NORMAL)
-        self.stdscr.addstr(y, x, " ")
+        with colours.NormalColour(self.stdscr):
+            self.stdscr.addstr(y, x, " ")
         x += 1
-        # Set the style of the tile
-        self._set_error_attr(tab, index)
-        # print it
-        self.stdscr.addstr(y, x, tab.title)
-        # reset the style
-        self.stdscr.attrset(curses.A_NORMAL)
+        # Set the style of the tile and print the tab name
+        style = self._set_error_attr(tab, index)
+        with style(self.stdscr):
+            self.stdscr.addstr(y, x, tab.title)
         # Return the updated writing position
         return x + len(tab.title)
 
@@ -170,7 +163,7 @@ if __name__ == "__main__":
     g = Graph("Graph Test")
     w6 = Window("Windows 6")
 
-    w4.set_text(2,2,"Test Text 3")
+    w4.set_text(w4.get_first_col() + 2,w4.get_first_row() + 2,"Test Text 3")
     
     v = VBox()
     v.add_window(g,weight=1)
@@ -193,8 +186,8 @@ if __name__ == "__main__":
 
     i = 0
     while True:
-        w0.set_text(0,0,"Time Enlapsed %d"%i)
+        w0.set_text(w0.get_first_col(),w0.get_first_row(),"Time Enlapsed %d"%i)
         tab2.set_error_state(i % 2 == 1)
-        g.add_point(sin(i/5))
+        g.add_point(sin(i/20))
         i += 1
-        sleep(0.1)
+        sleep(1/10)
