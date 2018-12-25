@@ -6,6 +6,7 @@ from tab import Tab
 from hbox import HBox
 from vbox import VBox
 from time import sleep
+from graph import Graph
 from window import Window
 from screen import Screen
 from textbox import TextBox
@@ -26,7 +27,7 @@ class CLI(Thread):
         }
 
     def _quit(self):
-        self.clean_up_terminal()
+        self.screen.clean_up_terminal()
         sys.exit(0)
         
 
@@ -147,6 +148,8 @@ class CLI(Thread):
 
 if __name__ == "__main__":
 
+    from math import sin
+
     cli = CLI()
 
     tab = Tab("Overview")
@@ -164,17 +167,17 @@ if __name__ == "__main__":
     w2 = Window("Windows 2")
     w3 = Window("Windows 3")
     w4 = TextBox("TextBox 4")
-    w5 = Window("Windows 5")
+    g = Graph("Graph Test")
     w6 = Window("Windows 6")
 
     w4.set_text(2,2,"Test Text 3")
     
     v = VBox()
-    v.add_window(w0,weight=1)
+    v.add_window(g,weight=1)
 
     h = HBox()
     h.add_window(w4,weight=1)
-    h.add_window(w5,weight=1)
+    h.add_window(w0,weight=1)
 
     v.add_window(h,weight=2)
 
@@ -186,11 +189,12 @@ if __name__ == "__main__":
 
     cli.start()
     
+    sleep(1)
 
     i = 0
     while True:
         w0.set_text(0,0,"Time Enlapsed %d"%i)
-        tab.set_error_state(i % 2 == 0)
         tab2.set_error_state(i % 2 == 1)
+        g.add_point(sin(i/5))
         i += 1
-        sleep(1)
+        sleep(0.1)

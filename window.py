@@ -11,6 +11,8 @@ class Window():
         """Initialize the Window."""
         self.set_title(title)
         self.win = None
+        self.width = 0
+        self.height = 0
     
     def draw_ch(self, x : int, y : int, string : str) -> bool:
         """Display a text on the windows, respecting the window dimensions.

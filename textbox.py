@@ -18,4 +18,4 @@ class TextBox(Window):
 
     def _refresh(self):
         self.draw_text(self.x, self.y, self.text)
-        super(TextBox, self)._refresh()
+        self._refresh_iter()
