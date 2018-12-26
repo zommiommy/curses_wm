@@ -1,6 +1,7 @@
 
 import curses
 from window import Window
+from wrapt import synchronized
 
 class TextBox(Window):
 
@@ -15,7 +16,10 @@ class TextBox(Window):
         self.text = text
         self.x = x
         self.y = y
+        self._refresh()
 
+    @synchronized
     def _refresh(self):
-        self.draw_text(self.x, self.y, self.text)
-        self._refresh_iter()
+        if self._is_displayed:
+            self.draw_text(self.x, self.y, self.text)
+            self._refresh_iter()

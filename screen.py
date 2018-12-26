@@ -25,7 +25,8 @@ class Screen():
         # Enable the use of KEY_UP and special keys as variables (keypad mode)
         self.stdscr.keypad(True)
         # Make getkey non blocking
-        self.stdscr.nodelay(True)
+        # self.stdscr.nodelay(True)
+        # self.stdscr.timeout(500)
         # add colour
         colours.initialize_colours()
 

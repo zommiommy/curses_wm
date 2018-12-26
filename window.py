@@ -1,5 +1,6 @@
 
 import curses
+from wrapt import synchronized
 from colours import TextColour, BorderColour
 
 class Window():
@@ -14,6 +15,7 @@ class Window():
         self.win = None
         self.width = 0
         self.height = 0
+        self._is_displayed = False
 
     def draw_text(self, x : int, y : int, string : str) -> bool:
         """Display a text on the windows, respecting the window dimensions.
@@ -70,7 +72,7 @@ class Window():
     def _start(self):
         """Create the window, set it up, clean it and draw the result."""
         self.win = curses.newwin(1,1, 0, 0)
-        self.win.nodelay(True)
+        #self.win.nodelay(True)
         self.win.keypad(1)
         self.win.clear()
 
@@ -100,6 +102,7 @@ class Window():
         """Method to be overwritten by the subclasses to add the content."""
         self._refresh_iter()
 
+    @synchronized
     def _refresh_iter(self):
         """Method to redraw the window."""
         if self.win:
@@ -117,4 +120,12 @@ class Window():
         self.height, self.width = height, width
         self.win.resize(self.height, self.width)
         self._refresh()
+
+
+    def set_displayed(self, value: bool):
+        self._is_displayed = value
+    
+    def is_displayed(self):
+        return self._is_displayed
+
 

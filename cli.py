@@ -12,6 +12,7 @@ from window import Window
 from screen import Screen
 from textbox import TextBox
 from threading import Thread
+from wrapt import synchronized
 from curses import KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP, KEY_RESIZE
 
 class CLI(Thread):
@@ -35,6 +36,7 @@ class CLI(Thread):
     def _initialize_tabs(self):
         """Pass the reference of the screen to all the tabs and start them"""
         [tab._start() for tab in self.tab_list]
+        self.tab_list[self.tab_index].set_displayed(True)
 
 
     def _set_error_attr(self, tab, index):
@@ -74,16 +76,20 @@ class CLI(Thread):
         if self.tab_index == 0:
             return
         self._erase()
+        self.tab_list[self.tab_index].set_displayed(False)
         self.tab_index -= 1
-        self._refresh()
+        self._erase()
+        self.tab_list[self.tab_index].set_displayed(True)
     
     def _move_right(self):
         """Move the tab_index to the next on the right and display that tab."""
         if self.tab_index == len(self.tab_list) - 1:
             return
         self._erase()
+        self.tab_list[self.tab_index].set_displayed(False)
         self.tab_index += 1
-        self._refresh()
+        self._erase()
+        self.tab_list[self.tab_index].set_displayed(True)
     
 
     def _erase(self):
@@ -93,6 +99,7 @@ class CLI(Thread):
             # Need to erase all the windows else there will be resize borders on other tabs
             [tab._erase() for tab in self.tab_list]
 
+    @synchronized
     def _refresh(self):
         """Refresh the screen and the tab on sight"""
         self._print_status_bar()
