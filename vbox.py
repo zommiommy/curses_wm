@@ -13,7 +13,7 @@ class VBox():
         """Initialize all the subclasses"""
         [win._start() for win in self.window_list]
 
-    def add_window(self, win: Window, weight: int):
+    def add_window(self, win: Window, weight: int = 1):
         """Add a window to the Hbox"""
         self.window_list.append(win)
         self.weight_list.append(weight)
