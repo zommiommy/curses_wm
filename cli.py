@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     cli = CLI()
 
-    tab = Tab("Overview")
+    tab = Tab("Main")
     cli.add_tab(tab)
 
     tab2 = Tab("Networks")
@@ -154,31 +154,35 @@ if __name__ == "__main__":
     tab3 = Tab("Threads")
     cli.add_tab(tab3)
 
+    main_box = VBox()
 
-    w0 = TextBox("Timer")
-    w1 = Window("Windows 1")
-    w2 = Window("Windows 2")
-    w3 = Window("Windows 3")
-    w4 = TextBox("TextBox 4")
-    g = Graph("Graph Test")
-    w6 = Window("Windows 6")
+    g = Graph("Cpu Usage")
+    main_box.add_window(g)
 
-    w4.set_text(w4.get_first_col() + 2,w4.get_first_row() + 2,"Test Text 3")
-    
-    v = VBox()
-    v.add_window(g,weight=1)
+    central_box = HBox()
 
-    h = HBox()
-    h.add_window(w4,weight=1)
-    h.add_window(w0,weight=1)
+    disk_temp_box = VBox()
+    disk = TextBox("Disck Usage")
+    temp = TextBox("Temperatures")
+    disk_temp_box.add_window(disk)
+    disk_temp_box.add_window(temp)
 
-    v.add_window(h,weight=2)
+    central_box.add_window(disk_temp_box)
+    mem = TextBox("Memory Usage")
+    central_box.add_window(mem, weight=2)
 
-    tab.set_window(v)
+    main_box.add_window(central_box)
 
-    tab2.set_window(w2)
+    last_box = HBox()
+    network = TextBox("Network Usage")
+    last_box.add_window(network)
+    processes = TextBox("Proceses")
+    last_box.add_window(processes)
 
-    tab3.set_window(w3)
+    main_box.add_window(last_box)
+
+    tab.set_window(main_box)
+
 
     cli.start()
     
@@ -186,8 +190,8 @@ if __name__ == "__main__":
 
     i = 0
     while True:
-        w0.set_text(w0.get_first_col(),w0.get_first_row(),"Time Enlapsed %d"%i)
+        disk.set_text(disk.get_first_col(),disk.get_first_row(),"Time Enlapsed %d"%i)
         tab2.set_error_state(i % 2 == 1)
         g.add_point(sin(i/20))
         i += 1
-        sleep(1/10)
+        sleep(1/60)
