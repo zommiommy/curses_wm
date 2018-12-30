@@ -1,7 +1,8 @@
 
 import curses
-from colours import GraphColour, GraphLegendColour, CentralLineColour
 from window import Window
+from wrapt import synchronized
+from colours import GraphColour, GraphLegendColour, CentralLineColour
 
 
 class Graph(Window):
@@ -19,6 +20,7 @@ class Graph(Window):
 
     def add_point(self, value : int):
         self.points = self.points[1:] + [value]
+        # self._refresh()
 
     
     def resize(self, width, height):
@@ -41,11 +43,11 @@ class Graph(Window):
     def _print_axis(self):
         maxi = self.legend_format.format(number=self.maximum)
         mini = self.legend_format.format(number=self.minimum)
-        midl = (self.maximum - self.minimum) / 2
+        midl = (self.maximum + self.minimum) / 2
         midl = self.legend_format.format(number=midl)
 
         with GraphLegendColour(self.win): 
-            self.draw_text(self.get_last_col() - len(maxi), self.get_first_row(), maxi)
+            self.draw_text(self.get_last_col() - len(maxi), self.get_first_row(),  maxi)
             self.draw_text(self.get_last_col() - len(midl), self.get_mid_row(), midl)
             self.draw_text(self.get_last_col() - len(mini), self.get_last_row(), mini)
 
@@ -82,10 +84,12 @@ class Graph(Window):
                     self.draw_text(x, self.get_mid_row(), self.draw_symbol)
 
 
+    @synchronized
     def _refresh(self):
-        self._erase()
-        self._update_max_min()
-        self._print_central_line()
-        self._draw_graph()
-        self._print_axis()
-        self._refresh_iter()
+        if self._is_displayed:
+            self._erase()
+            self._update_max_min()
+            self._print_central_line()
+            self._draw_graph()
+            self._print_axis()
+            self._refresh_iter()

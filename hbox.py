@@ -1,5 +1,6 @@
 
 from window import Window
+from wrapt import synchronized
 
 class HBox():
     """Class to put multiple windows on weighted columns on the same row."""
@@ -8,6 +9,7 @@ class HBox():
         """Initialize an empyt HBox."""
         self.window_list = []
         self.weight_list = []
+        self._is_displayed = False
     
     def _start(self):
         """Initialize all the subclasses"""
@@ -18,9 +20,11 @@ class HBox():
         self.window_list.append(win)
         self.weight_list.append(weight)
 
+    @synchronized
     def _refresh(self):
         """Refresh all the sub windows"""
-        [win._refresh() for win  in self.window_list]
+        if self.is_displayed():
+            [win._refresh() for win  in self.window_list]
 
     def _resize_routine(self, new_x = 0, new_y = 0):
         # Normalize the weights
@@ -48,3 +52,10 @@ class HBox():
     def _erase(self):
         """Erase all the sub windows"""
         [win._erase() for win  in self.window_list]
+
+    def set_displayed(self, value: bool):
+        self._is_displayed = value
+        [win.set_displayed(value) for win  in self.window_list]
+    
+    def is_displayed(self):
+        return self._is_displayed
