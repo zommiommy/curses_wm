@@ -89,7 +89,7 @@ class CLI(Thread):
     def _erase(self) -> None:
         """Clear the screen"""
         if self.stdscr:
-            self.stdscr.erase()
+            self.stdscr.erase() 
             # Need to erase all the windows else there will be resize borders on other tabs
             [tab._erase() for tab in self.tab_list]
 
