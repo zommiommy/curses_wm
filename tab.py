@@ -7,7 +7,6 @@ class Tab():
     def __init__(self, title: str):
         self.title = title
         self.window = None
-        self._is_displayed = False
         self.error_state = False
 
     def _start(self):
@@ -21,14 +20,6 @@ class Tab():
         if self.window:
             self.window._erase()
         self.window = window
-
-    def set_displayed(self, value: bool):
-        self._is_displayed = value
-        if self.window:
-            self.window.set_displayed(value)
-    
-    def is_displayed(self):
-        return self._is_displayed
 
     def set_title(self, new_title: str):
         self.title = new_title.strip()

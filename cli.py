@@ -37,7 +37,6 @@ class CLI(Thread):
     def _initialize_tabs(self) -> None:
         """Pass the reference of the screen to all the tabs and start them"""
         [tab._start() for tab in self.tab_list]
-        self.tab_list[self.tab_index].set_displayed(True)
 
 
     def _set_error_attr(self, tab : Tab, index : int) -> None:
@@ -77,20 +76,14 @@ class CLI(Thread):
         if self.tab_index == 0:
             return
         self._erase()
-        self.tab_list[self.tab_index].set_displayed(False)
         self.tab_index -= 1
-        self._erase()
-        self.tab_list[self.tab_index].set_displayed(True)
     
     def _move_right(self) -> None:
         """Move the tab_index to the next on the right and display that tab."""
         if self.tab_index == len(self.tab_list) - 1:
             return
         self._erase()
-        self.tab_list[self.tab_index].set_displayed(False)
         self.tab_index += 1
-        self._erase()
-        self.tab_list[self.tab_index].set_displayed(True)
     
 
     def _erase(self) -> None:
@@ -123,9 +116,8 @@ class CLI(Thread):
         if self.screen:
             self.screen.set_refresh_rate(refresh_rate)
 
-    def _run(self):
+    def _run(self) -> None:
         """Actual run function"""
-        self._print_status_bar()
         while True:
             self._refresh()
             x = self.stdscr.getch()
@@ -205,20 +197,36 @@ if __name__ == "__main__":
 
     sleep(0.3)
 
-    processes.set_text(processes.get_first_col(), processes.get_first_row(), str((
-        processes.get_first_col(),
-        processes.get_mid_col(),
-        processes.get_last_col(),
-        processes.get_first_row(),
-        processes.get_mid_row(),
-        processes.get_last_row(),
-        processes.get_shape())))
 
-    mem.set_text(mem.get_mid_col(),mem.get_last_row(),".")
+
     i = 0
     while True:
         disk.set_text(disk.get_first_col(),disk.get_first_row(),"Time Enlapsed %d"%i)
-        tab2.set_error_state(i % 2 == 1)
+        tab2.set_error_state(int(i/ 30) % 2 == 1)
         g.add_point(sin(i/20))
+
+        # Print position methods results
+        processes.set_text(processes.get_first_col(), processes.get_first_row(), str((
+            processes.get_first_col(),
+            processes.get_mid_col(),
+            processes.get_last_col())))
+        processes.add_text(processes.get_first_col(), processes.get_first_row(1), str((
+            processes.get_first_row(),
+            processes.get_mid_row(),
+            processes.get_last_row())))
+        processes.add_text(processes.get_first_col(), processes.get_first_row(2), str(processes.get_shape()))
+            
+        # Test of all the combination of prosition mehtod
+        c = "~~"
+        mem.set_text(mem.get_first_col(),mem.get_first_row(),c)
+        mem.add_text(mem.get_first_col(),mem.get_mid_row(),c)
+        mem.add_text(mem.get_first_col(),mem.get_last_row(),c)
+        mem.add_text(mem.get_mid_col(),mem.get_first_row(),c)
+        mem.add_text(mem.get_mid_col(),mem.get_mid_row(),c)
+        mem.add_text(mem.get_mid_col(),mem.get_last_row(),c)
+        mem.add_text(mem.get_last_col(),mem.get_first_row(),c)
+        mem.add_text(mem.get_last_col(),mem.get_mid_row(),c)
+        mem.add_text(mem.get_last_col(),mem.get_last_row(),c)
+
         i += 1
         sleep(1/60)

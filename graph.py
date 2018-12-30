@@ -20,7 +20,6 @@ class Graph(Window):
 
     def add_point(self, value : int):
         self.points = self.points[1:] + [value]
-        # self._refresh()
 
     
     def resize(self, width, height):
@@ -47,9 +46,9 @@ class Graph(Window):
         midl = self.legend_format.format(number=midl)
 
         with GraphLegendColour(self.win): 
-            self.draw_text(self.get_last_col() - len(maxi), self.get_first_row(),  maxi)
-            self.draw_text(self.get_last_col() - len(midl), self.get_mid_row(), midl)
-            self.draw_text(self.get_last_col() - len(mini), self.get_last_row(), mini)
+            self.draw_text(self.get_last_col(- len(maxi)) , self.get_first_row(),  maxi)
+            self.draw_text(self.get_last_col(- len(midl)) , self.get_mid_row(), midl)
+            self.draw_text(self.get_last_col(- len(mini)) , self.get_last_row(), mini)
 
     def _momentum_update(self, value, new_value):
         return value * self.momentum_rate + (1 - self.momentum_rate) * new_value
@@ -86,10 +85,9 @@ class Graph(Window):
 
     @synchronized
     def _refresh(self):
-        if self._is_displayed:
-            self._erase()
-            self._update_max_min()
-            self._print_central_line()
-            self._draw_graph()
-            self._print_axis()
-            self._refresh_iter()
+        self._erase()
+        self._update_max_min()
+        self._print_central_line()
+        self._draw_graph()
+        self._print_axis()
+        self._refresh_iter()

@@ -15,20 +15,31 @@ class Window():
         self.win = None
         self.width = 0
         self.height = 0
-        self._is_displayed = False
+
+    def _check_x(self, x: int) -> bool:
+        """Check if the given x is inside the window or else."""
+        return x > self.get_last_col() or x < self.get_first_col()
+
+    def _check_y(self, y: int) -> bool:
+        """Check if the given y is inside the window or else."""
+        return  y > self.get_last_row() or y < self.get_first_row()
+
+    def _check_bounds(self, x: int, y: int) -> bool:
+        """Check if the given coordinates are inside the window or else."""
+        return self._check_x(x) or self._check_y(y)
+
+    def _get_writtable_window(self, x: int) -> int:
+        """Return how many characters are writtable starting from x until the bound"""
+        return (self.get_last_col() + 1) - x   
 
     def draw_text(self, x : int, y : int, string : str) -> bool:
         """Display a text on the windows, respecting the window dimensions.
         Return if the drawn was sucessfully inside the window or else."""
         # Check if the text is in the bound of the window
-        error = x > (self.get_last_col() + 1)
-        error |= x < self.get_first_col()
-        error |= y > self.get_last_row()
-        error |= y < self.get_first_row()
-        if error :
+        if self._check_bounds(x,y) :
             return False
 
-        writtable_window = (self.get_last_col() + 1) - x - 2
+        writtable_window = self._get_writtable_window(x)
 
         #for line in string.split("\n"):
         #    y += 1
@@ -44,35 +55,43 @@ class Window():
         """Return the current dimension of the window as (width, height)."""
         return (self.width, self.height)
 
-    def get_first_row(self):
+    def get_first_row(self, offset: int = 0) -> int:
         """Return the index to write on the first line of the window."""
-        return 1
+        if offset < 0:
+            offset = 0
 
-    def get_mid_row(self):
+        return 1 + offset
+
+    def get_mid_row(self, offset: int = 0) -> int:
         """Return the index of the middle row"""
-        return int(self.get_last_row() / 2)
+        return int(self.get_last_row() / 2) + offset
 
-    def get_last_row(self):
+    def get_last_row(self, offset: int = 0) -> int:
         """Return the index to write on the last line of the window."""
         # exlude the first
-        return self.height - 2
+        if offset > 0:
+            offset = 0
+        return self.height - 2 + offset
 
-    def get_first_col(self):
+    def get_first_col(self, offset: int = 0) -> int:
         """Return the index to write on the first col of the window."""
-        return 1
+        if offset < 0:
+            offset = 0
+        return 1 + offset
 
-    def get_mid_col(self):
+    def get_mid_col(self, offset: int = 0) -> int:
         """Return the index of the middle col"""
-        return int(self.get_last_col() / 2)
+        return int(self.get_last_col() / 2) + offset
 
-    def get_last_col(self):
+    def get_last_col(self, offset: int = 0) -> int:
         """Return the index to write on the last line of the window."""
-        return self.width - 2
+        if offset > 0:
+            offset = 0
+        return self.width - 2 + offset
 
     def _start(self):
         """Create the window, set it up, clean it and draw the result."""
         self.win = curses.newwin(1,1, 0, 0)
-        #self.win.nodelay(True)
         self.win.keypad(1)
         self.win.clear()
 
@@ -120,12 +139,5 @@ class Window():
         self.height, self.width = height, width
         self.win.resize(self.height, self.width)
         self._refresh()
-
-
-    def set_displayed(self, value: bool):
-        self._is_displayed = value
-    
-    def is_displayed(self):
-        return self._is_displayed
 
 
