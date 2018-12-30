@@ -7,15 +7,13 @@ class Screen():
     def __init__(self):
         self.stdscr = None
 
-    def start(self):
+    def start(self, refresh_rate : int = 24):
         """Initialize the curses and the terminal."""
         # Setup the screen
         self.stdscr = curses.initscr()
         # Enable colors
-        try:
+        if curses.has_colors():
             curses.start_color()
-        except:
-            pass
         # Disable key display on screen
         curses.noecho()
         # Enable Callbacks for keys so they act as interrupts
@@ -26,12 +24,16 @@ class Screen():
         self.stdscr.keypad(True)
         # Make getkey non blocking
         # self.stdscr.nodelay(True)
-        # self.stdscr.timeout(500)
+        self.set_refresh_rate(refresh_rate)
         # add colour
         colours.initialize_colours()
 
         return self.stdscr
 
+    def set_refresh_rate(self, refresh_rate : int) -> None:
+        """Set the refresh rate of the CLI"""
+        if self.stdscr:
+            self.stdscr.timeout(int(1000 / refresh_rate))
 
     def clean_up_terminal(self):
         """reset the terminal to the previous settings."""

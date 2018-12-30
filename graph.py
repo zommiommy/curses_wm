@@ -20,7 +20,7 @@ class Graph(Window):
 
     def add_point(self, value : int):
         self.points = self.points[1:] + [value]
-        self._refresh()
+        # self._refresh()
 
     
     def resize(self, width, height):
@@ -43,11 +43,11 @@ class Graph(Window):
     def _print_axis(self):
         maxi = self.legend_format.format(number=self.maximum)
         mini = self.legend_format.format(number=self.minimum)
-        midl = (self.maximum - self.minimum) / 2
+        midl = (self.maximum + self.minimum) / 2
         midl = self.legend_format.format(number=midl)
 
         with GraphLegendColour(self.win): 
-            self.draw_text(self.get_last_col() - len(maxi), self.get_first_row(), maxi)
+            self.draw_text(self.get_last_col() - len(maxi), self.get_first_row(),  maxi)
             self.draw_text(self.get_last_col() - len(midl), self.get_mid_row(), midl)
             self.draw_text(self.get_last_col() - len(mini), self.get_last_row(), mini)
 

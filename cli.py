@@ -21,6 +21,7 @@ class CLI(Thread):
         self.screen = Screen()
         self.tab_list = []
         self.tab_index = 0
+        self.refresh_rate = None
         self.key_handlers = {
             ord("q"): self._quit,
             KEY_RESIZE: self._resize,
@@ -28,18 +29,18 @@ class CLI(Thread):
             KEY_RIGHT:  self._move_right
         }
 
-    def _quit(self):
+    def _quit(self) -> None:
         self.screen.clean_up_terminal()
         sys.exit(0)
         
 
-    def _initialize_tabs(self):
+    def _initialize_tabs(self) -> None:
         """Pass the reference of the screen to all the tabs and start them"""
         [tab._start() for tab in self.tab_list]
         self.tab_list[self.tab_index].set_displayed(True)
 
 
-    def _set_error_attr(self, tab, index):
+    def _set_error_attr(self, tab : Tab, index : int) -> None:
         if index == self.tab_index:
             if tab.error_state:
                 return colours.HighlightErrorColour
@@ -51,7 +52,7 @@ class CLI(Thread):
             else:
                 return colours.TextColour
 
-    def _print_tab(self, x, y, tab, index):
+    def _print_tab(self, x : int, y : int, tab : Tab, index : int) -> None:
         # print the initial space
         with colours.NormalColour(self.stdscr):
             self.stdscr.addstr(y, x, " ")
@@ -64,14 +65,14 @@ class CLI(Thread):
         return x + len(tab.title)
 
 
-    def _print_status_bar(self):
+    def _print_status_bar(self) -> None:
         """Print the status bar."""
         last_line = self.height - 1
         x = 0
         for index, tab in enumerate(self.tab_list):
             x = self._print_tab(x, last_line, tab, index)
 
-    def _move_left(self):
+    def _move_left(self) -> None:
         """Move the tab_index to the next on the left and display that tab."""
         if self.tab_index == 0:
             return
@@ -81,7 +82,7 @@ class CLI(Thread):
         self._erase()
         self.tab_list[self.tab_index].set_displayed(True)
     
-    def _move_right(self):
+    def _move_right(self) -> None:
         """Move the tab_index to the next on the right and display that tab."""
         if self.tab_index == len(self.tab_list) - 1:
             return
@@ -92,7 +93,7 @@ class CLI(Thread):
         self.tab_list[self.tab_index].set_displayed(True)
     
 
-    def _erase(self):
+    def _erase(self) -> None:
         """Clear the screen"""
         if self.stdscr:
             self.stdscr.erase()
@@ -100,22 +101,27 @@ class CLI(Thread):
             [tab._erase() for tab in self.tab_list]
 
     @synchronized
-    def _refresh(self):
+    def _refresh(self) -> None:
         """Refresh the screen and the tab on sight"""
         self._print_status_bar()
         self.stdscr.refresh()
         self.tab_list[self.tab_index]._refresh()
         
-    def _resize(self):
+    def _resize(self) -> None:
         """Erase the screen, call the resize method of all the tabs and update the CLI dimension"""
         self.height, self.width = self.stdscr.getmaxyx()
         self._erase()
         [tab.resize(self.width, self.height - 1) for tab in self.tab_list]
         self._refresh()
         
-    def add_tab(self, tab: Tab):
+    def add_tab(self, tab: Tab) -> None:
         """add a tab to the cli"""
         self.tab_list.append(tab)
+
+    def set_refresh_rate(self, refresh_rate : int) -> None:
+        self.refresh_rate = refresh_rate
+        if self.screen:
+            self.screen.set_refresh_rate(refresh_rate)
 
     def _run(self):
         """Actual run function"""
@@ -126,10 +132,12 @@ class CLI(Thread):
             if x in self.key_handlers:
                 self.key_handlers[x]()
 
-    def run(self):
+    def run(self) -> None:
         """wrapper so the exceptions can be displayed"""
         # Start the cli
         self.stdscr = self.screen.start()
+        if self.refresh_rate:
+            self.screen.set_refresh_rate(self.refresh_rate)
         # save the current dim
         self.height, self.width = self.stdscr.getmaxyx()
         # Start all the tabs
@@ -149,9 +157,9 @@ class CLI(Thread):
 if __name__ == "__main__":
 
     from math import sin
-
+    # Create the Cli
     cli = CLI()
-
+    # Create some tabs and add them to the cli
     tab = Tab("Main")
     cli.add_tab(tab)
 
@@ -160,14 +168,15 @@ if __name__ == "__main__":
 
     tab3 = Tab("Threads")
     cli.add_tab(tab3)
-
+    # Create a vertical box
     main_box = VBox()
-
+    # Create a graph and add it to the vertical box
     g = Graph("Cpu Usage")
     main_box.add_window(g)
 
+    # Create a horizontal box
     central_box = HBox()
-
+    
     disk_temp_box = VBox()
     disk = TextBox("Disck Usage")
     temp = TextBox("Temperatures")
@@ -191,10 +200,21 @@ if __name__ == "__main__":
     tab.set_window(main_box)
 
 
+    cli.set_refresh_rate(60)
     cli.start()
-    
-    sleep(1)
 
+    sleep(0.3)
+
+    processes.set_text(processes.get_first_col(), processes.get_first_row(), str((
+        processes.get_first_col(),
+        processes.get_mid_col(),
+        processes.get_last_col(),
+        processes.get_first_row(),
+        processes.get_mid_row(),
+        processes.get_last_row(),
+        processes.get_shape())))
+
+    mem.set_text(mem.get_mid_col(),mem.get_last_row(),".")
     i = 0
     while True:
         disk.set_text(disk.get_first_col(),disk.get_first_row(),"Time Enlapsed %d"%i)

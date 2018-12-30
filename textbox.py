@@ -16,7 +16,7 @@ class TextBox(Window):
         self.text = text
         self.x = x
         self.y = y
-        self._refresh()
+        # self._refresh()
 
     @synchronized
     def _refresh(self):
