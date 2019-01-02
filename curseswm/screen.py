@@ -1,6 +1,6 @@
 
 import curses
-import colours
+from . import colours
 
 class Screen():
 
@@ -35,7 +35,7 @@ class Screen():
         if self.stdscr:
             self.stdscr.timeout(int(1000 / refresh_rate))
 
-    def clean_up_terminal(self):
+    def clean_up_terminal(self) -> None:
         """reset the terminal to the previous settings."""
         if self.stdscr:
             # Disable the Keypad mode

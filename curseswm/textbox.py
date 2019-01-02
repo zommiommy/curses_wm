@@ -1,13 +1,14 @@
 
 import curses
-from window import Window
 from wrapt import synchronized
+
+from .window import Window
 
 class TextBox(Window):
 
-    def __init__(self,title:str = ""):
+    def __init__(self,title:str = "", **kwargs):
         """Initialize the Text Box."""
-        super().__init__(title)
+        super().__init__(title, **kwargs)
         self.texts = []
 
     def set_text(self, x : int, y : int, text : str) -> None:
