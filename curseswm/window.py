@@ -34,32 +34,25 @@ class Window():
 
     def _get_writtable_window(self, x: int) -> int:
         """Return how many characters are writtable starting from x until the bound"""
-        return (self.get_last_col() + 1) - x   
+        return self.get_last_col() - x + 1
 
-    def draw_text(self, x : int, y : int, string : str) -> bool:
+    def draw_text(self, x : int, y : int, string : str):
         """Display a text on the windows, respecting the window dimensions.
         Return if the drawn was sucessfully inside the window or else."""
         # Check if the text is in the bound of the window
-        if self._check_bounds(x,y) :
-            return False
-
-        writtable_window = self._get_writtable_window(x)
-
-        #for line in string.split("\n"):
-        #    y += 1
-        #    if y > self.get_last_row():
-        #        return False
-        self.win.addnstr(y, x, string, writtable_window)
-        # This line would do the same but for some reason
-        # It messes up the corner of all the windows
-        # self.win.insstr(y + 1, x + 1, string)
-        return True
+        if not self.win or self._check_bounds(x,y) :
+            return
+        # try except to catch resize writing error TODO find out why
+        try:
+            self.win.addnstr(y, x, string, self._get_writtable_window(x))
+        except curses.error:
+            pass
 
     def get_shape(self) -> Tuple[int,int]:
         """Return the current dimension of the window as (width, height)."""
         return (self.width, self.height)
 
-    def clip_to_bounds_x(self, x: int) -> int:
+    def clip_to_bounds_x(self, x : int) -> int:
         """Helper method to clip the coordinate to the nearest feasiable ones."""
         if x < self.get_first_col():
             x = self.get_first_col()
@@ -67,7 +60,7 @@ class Window():
             x = self.get_last_col()
         return x
 
-    def clip_to_bounds_y(self, y: int) -> int:
+    def clip_to_bounds_y(self, y : int) -> int:
         """Helper method to clip the coordinate to the nearest feasiable ones."""
         if y < self.get_first_col():
             y = self.get_first_col()
@@ -84,7 +77,7 @@ class Window():
     def get_first_row(self) -> int:
         """Return the index to write on the first line of the window."""
         if self.display_border:
-            return 1
+            return 1    # skip the border and title row
         return 0
 
     @offsettable_row
@@ -96,14 +89,14 @@ class Window():
     def get_last_row(self) -> int:
         """Return the index to write on the last line of the window."""
         if self.display_border:
-            return self.height - 2
-        return self.height - 1
+            return self.height - 2  # skip the border and title row and same as below
+        return self.height - 1      # since the first row is the 0 and there are height rows the last one is height - 1
 
     @offsettable_col
     def get_first_col(self) -> int:
         """Return the index to write on the first col of the window."""
         if self.display_border:
-            return 1
+            return 1 # skip the border col
         return 0
 
     @offsettable_col
@@ -115,8 +108,8 @@ class Window():
     def get_last_col(self) -> int:
         """Return the index to write on the last line of the window."""
         if self.display_border:
-            return self.width - 2
-        return self.width - 1
+            return self.width - 2   # skip the border col and same as below
+        return self.width - 1       # since the first col is the 0 and there are width cols the last one is width - 1
 
     def _start(self) -> None:
         """Create the window, set it up, clean it and draw the result."""
@@ -134,7 +127,13 @@ class Window():
 
     def _move_window(self, new_x : int, new_y : int) -> None:
         """Move the windows so that the upper left corner is at new_x and new_y"""
-        self.win.mvwin(new_y, new_x)
+        if not self.win:
+            return
+        # try except to catch resize writing error TODO find out why
+        try:
+            self.win.mvwin(new_y, new_x)
+        except curses.error:
+            pass
 
     def _draw_border(self) -> None:
         """Draw borders around the window."""
@@ -150,7 +149,7 @@ class Window():
         """Method to be overwritten by the subclasses to add the content."""
         self._refresh_iter()
 
-    @synchronized
+    #@synchronized
     def _refresh_iter(self) -> None:
         """Method to redraw the window."""
         if self.win:

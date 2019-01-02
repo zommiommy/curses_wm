@@ -73,7 +73,7 @@ while True:
     processes.add_text(processes.get_first_col(), processes.get_first_row(2), str(processes.get_shape()))
         
     # Test of all the combination of prosition mehtod
-    c = "~~"
+    c = "abcd"
     mem.set_text(mem.get_first_col(),mem.get_first_row(),c)
     mem.add_text(mem.get_first_col(),mem.get_mid_row(),c)
     mem.add_text(mem.get_first_col(),mem.get_last_row(),c)

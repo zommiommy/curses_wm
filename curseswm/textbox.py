@@ -19,7 +19,7 @@ class TextBox(Window):
         self.texts.append({"x":x,"y":y,"text":text})    
         # self._refresh()
 
-    @synchronized
+    #@synchronized
     def _refresh(self) -> None:
         for t in self.texts:
             self.draw_text(t["x"], t["y"], t["text"])

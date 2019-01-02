@@ -97,7 +97,7 @@ class Graph(Window):
                     self.draw_text(x, self.get_mid_row(), self.draw_symbol)
 
 
-    @synchronized
+    #@synchronized
     def _refresh(self) -> None:
         self._erase()
         self._update_max_min()
