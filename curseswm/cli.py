@@ -11,6 +11,7 @@ from . import colours
 from .tab import Tab
 from .window import Window
 from .screen import Screen
+from .horribleworkaround import horrible_workaround
 
 class CLI(Thread):
     def __init__(self):
@@ -47,7 +48,7 @@ class CLI(Thread):
                 return colours.ErrorColour
             else:
                 return colours.TextColour
-
+                
     def _print_tab(self, x : int, y : int, tab : Tab, index : int) -> None:
         # print the initial space
         with colours.NormalColour(self.stdscr):
@@ -61,6 +62,7 @@ class CLI(Thread):
         return x + len(tab.title)
 
 
+    @horrible_workaround
     def _print_status_bar(self) -> None:
         """Print the status bar."""
         last_line = self.height - 1

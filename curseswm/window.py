@@ -5,6 +5,7 @@ from wrapt import synchronized
 
 from curseswm.colours import TextColour, BorderColour
 from .offsettable import offsettable_row, offsettable_col
+from .horribleworkaround import horrible_workaround
 
 class Window():
     """Base class to display a window. This class is ment to be extendend
@@ -36,17 +37,14 @@ class Window():
         """Return how many characters are writtable starting from x until the bound"""
         return self.get_last_col() - x + 1
 
+    @horrible_workaround
     def draw_text(self, x : int, y : int, string : str):
         """Display a text on the windows, respecting the window dimensions.
         Return if the drawn was sucessfully inside the window or else."""
         # Check if the text is in the bound of the window
         if not self.win or self._check_bounds(x,y) :
             return
-        # try except to catch resize writing error TODO find out why
-        try:
-            self.win.addnstr(y, x, string, self._get_writtable_window(x))
-        except curses.error:
-            pass
+        self.win.addnstr(y, x, string, self._get_writtable_window(x))
 
     def get_shape(self) -> Tuple[int,int]:
         """Return the current dimension of the window as (width, height)."""
@@ -125,15 +123,12 @@ class Window():
         """Set the new title of the window."""
         self.title = " " + new_title.strip() + " "
 
+    @horrible_workaround
     def _move_window(self, new_x : int, new_y : int) -> None:
         """Move the windows so that the upper left corner is at new_x and new_y"""
         if not self.win:
             return
-        # try except to catch resize writing error TODO find out why
-        try:
-            self.win.mvwin(new_y, new_x)
-        except curses.error:
-            pass
+        self.win.mvwin(new_y, new_x)
 
     def _draw_border(self) -> None:
         """Draw borders around the window."""
@@ -163,10 +158,10 @@ class Window():
         if self.win:
             self.win.erase()
 
+    @horrible_workaround
     def resize(self, width : int, height : int) -> None:
         """Resize using fixed width and height."""
         self.height, self.width = height, width
         self.win.resize(self.height, self.width)
-        self._refresh()
 
 
