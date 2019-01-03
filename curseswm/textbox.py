@@ -1,6 +1,5 @@
 
 import curses
-from wrapt import synchronized
 
 from .window import Window
 
@@ -13,13 +12,10 @@ class TextBox(Window):
 
     def set_text(self, x : int, y : int, text : str) -> None:
         self.texts = [{"x":x,"y":y,"text":text}]
-        # self._refresh()
 
     def add_text(self, x : int, y : int, text : str) -> None:
-        self.texts.append({"x":x,"y":y,"text":text})    
-        # self._refresh()
+        self.texts.append({"x":x,"y":y,"text":text})
 
-    #@synchronized
     def _refresh(self) -> None:
         for t in self.texts:
             self.draw_text(t["x"], t["y"], t["text"])

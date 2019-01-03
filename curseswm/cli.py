@@ -4,7 +4,6 @@ import sys
 import curses
 from time import sleep
 from threading import Thread
-from wrapt import synchronized
 from curses import KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP, KEY_RESIZE
 
 from . import colours
@@ -48,7 +47,7 @@ class CLI(Thread):
                 return colours.ErrorColour
             else:
                 return colours.TextColour
-                
+
     def _print_tab(self, x : int, y : int, tab : Tab, index : int) -> None:
         # print the initial space
         with colours.NormalColour(self.stdscr):
@@ -92,7 +91,6 @@ class CLI(Thread):
             # Need to erase all the windows else there will be resize borders on other tabs
             [tab._erase() for tab in self.tab_list]
 
-    @synchronized
     def _refresh(self) -> None:
         """Refresh the screen and the tab on sight"""
         self._print_status_bar()

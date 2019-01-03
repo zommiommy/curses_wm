@@ -1,54 +1,19 @@
 
-from wrapt import synchronized
-
 from .window import Window
+from .dinamicbox import DynamicBox
 
-class HBox():
+class HBox(DynamicBox):
     """Class to put multiple windows on weighted columns on the same row."""
-
-    def __init__(self):
-        """Initialize an empyt HBox."""
-        self.window_list = []
-        self.weight_list = []
-    
-    def _start(self):
-        """Initialize all the subclasses"""
-        [win._start() for win in self.window_list]
-
-    def add_window(self, win: Window, weight: int = 1):
-        """Add a window to the Hbox"""
-        self.window_list.append(win)
-        self.weight_list.append(weight)
-
-    @synchronized
-    def _refresh(self):
-        """Refresh all the sub windows"""
-        [win._refresh() for win  in self.window_list]
-
     def _resize_routine(self, new_x = 0, new_y = 0):
         # Normalize the weights
-        weight_total = sum(self.weight_list, 0)
-        weights = list(map(lambda x: int(self.width * x / weight_total),self.weight_list))
-
-        weights[0] += (self.width - sum(weights, 0))
+        win_dimensions = self._normalize_weights(self.width)
         # update the sub windows dimension and move them
         x = new_x
-        for win, weight in zip(self.window_list, weights):
-            win.resize(weight, self.height)
-            win._move_window(x,new_y)
-            x += weight
-
-    def resize(self, width, height):
-        """Resize method if the class is a child."""
-        # Update to the new dimension
-        self.height, self.width = height, width
-        self._resize_routine()
-
-    def _move_window(self, new_x, new_y):
-        """Move the windows so that the upper left corner is at new_x and new_y"""
-        self._resize_routine(new_x, new_y)
-
-    def _erase(self):
-        """Erase all the sub windows"""
-        [win._erase() for win  in self.window_list]
-
+        for win, dimension, display in zip(self.window_list, win_dimensions, self.display_list):
+            if display:
+                win.resize(dimension, self.height)
+                win._move_window(x,new_y)
+                x += dimension
+            else:
+                win.resize(0,0)
+                win._move_window(0,0)

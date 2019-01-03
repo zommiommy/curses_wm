@@ -1,6 +1,5 @@
 
 import curses
-from wrapt import synchronized
 
 from .window import Window
 
@@ -28,7 +27,6 @@ class Tab():
     def get_title(self) -> str:
         return self.title
 
-    @synchronized
     def _refresh(self) -> None:
         if self.window:
             self.window._refresh()

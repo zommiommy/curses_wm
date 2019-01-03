@@ -2,8 +2,6 @@
 import curses
 from typing import List
 
-from wrapt import synchronized
-
 from .colours import CentralLineColour, GraphColour, GraphLegendColour
 from .window import Window
 
@@ -60,9 +58,9 @@ class Graph(Window):
         midl : str = self.legend_format.format(number=midl)
 
         with GraphLegendColour(self.win): 
-            self.draw_text(self.get_last_col(- len(maxi)) , self.get_first_row(),  maxi)
-            self.draw_text(self.get_last_col(- len(midl)) , self.get_mid_row(), midl)
-            self.draw_text(self.get_last_col(- len(mini)) , self.get_last_row(), mini)
+            self.draw_text(self.get_last_col(1 - len(maxi)) , self.get_first_row(), maxi)
+            self.draw_text(self.get_last_col(1 - len(midl)) , self.get_mid_row()  , midl)
+            self.draw_text(self.get_last_col(1 - len(mini)) , self.get_last_row() , mini)
 
     def _momentum_update(self, value : float, new_value : float) -> float:
         return value * self.momentum_rate + (1 - self.momentum_rate) * new_value
@@ -97,7 +95,6 @@ class Graph(Window):
                     self.draw_text(x, self.get_mid_row(), self.draw_symbol)
 
 
-    #@synchronized
     def _refresh(self) -> None:
         self._erase()
         self._update_max_min()

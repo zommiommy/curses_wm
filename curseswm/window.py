@@ -1,7 +1,6 @@
 
 import curses
 from typing import Tuple
-from wrapt import synchronized
 
 from curseswm.colours import TextColour, BorderColour
 from .offsettable import offsettable_row, offsettable_col
@@ -41,7 +40,6 @@ class Window():
     def draw_text(self, x : int, y : int, string : str):
         """Display a text on the windows, respecting the window dimensions.
         Return if the drawn was sucessfully inside the window or else."""
-        # Check if the text is in the bound of the window
         if not self.win or self._check_bounds(x,y) :
             return
         self.win.addnstr(y, x, string, self._get_writtable_window(x))
