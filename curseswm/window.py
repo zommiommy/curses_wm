@@ -79,7 +79,7 @@ class Window():
     @offsettable_row
     def get_mid_row(self) -> int:
         """Return the index of the middle row"""
-        return int((self.get_last_row() - self.get_first_row()) / 2) 
+        return int((self.get_last_row() + self.get_first_row()) / 2) 
 
     @offsettable_row
     def get_last_row(self) -> int:
@@ -98,7 +98,7 @@ class Window():
     @offsettable_col
     def get_mid_col(self) -> int:
         """Return the index of the middle col"""
-        return int((self.get_last_col() - self.get_first_col()) / 2) 
+        return int((self.get_last_col() + self.get_first_col()) / 2) 
 
     @offsettable_col
     def get_last_col(self) -> int:
@@ -162,4 +162,10 @@ class Window():
         self.height, self.width = height, width
         self.win.resize(self.height, self.width)
 
+    def get_default_min_dim(self) -> int:
+        """Return the minimum dimension at which the window has sense, 3 means that smaller than 3x3 the window is useless."""
+        if self.display_border:
+            return 3
+        else:
+            return 1
 

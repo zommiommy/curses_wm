@@ -6,14 +6,14 @@ class HBox(DynamicBox):
     """Class to put multiple windows on weighted columns on the same row."""
     def _resize_routine(self, new_x = 0, new_y = 0):
         # Normalize the weights
-        win_dimensions = self._normalize_weights(self.width)
+        self._find_fitting(self.width)
         # update the sub windows dimension and move them
         x = new_x
-        for win, dimension, display in zip(self.window_list, win_dimensions, self.display_list):
-            if display:
-                win.resize(dimension, self.height)
-                win._move_window(x,new_y)
-                x += dimension
+        for obj in self.window_list:
+            if obj.display:
+                obj.window.resize(obj.actual_dim, self.height)
+                obj.window._move_window(x,new_y)
+                x += obj.actual_dim
             else:
-                win.resize(0,0)
-                win._move_window(0,0)
+                obj.window.resize(1,1)
+                obj.window._move_window(0,0)

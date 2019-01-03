@@ -93,9 +93,9 @@ class CLI(Thread):
 
     def _refresh(self) -> None:
         """Refresh the screen and the tab on sight"""
-        self._print_status_bar()
         self.stdscr.refresh()
         self.tab_list[self.tab_index]._refresh()
+        self._print_status_bar()
         
     def _resize(self) -> None:
         """Erase the screen, call the resize method of all the tabs and update the CLI dimension"""

@@ -2,6 +2,7 @@
 from typing import List
 
 from .window import Window
+from .boxsubwindow import BoxSubWindow
 from .horribleworkaround import horrible_workaround
 
 class DynamicBox():
@@ -10,36 +11,74 @@ class DynamicBox():
     def __init__(self):
         """Initialize an empty DynamicBox."""
         self.window_list = []
-        self.weight_list   : List[int]  = []
-        self.priority_list : List[int]  = []
-        self.display_list  : List[bool] = []
     
     def _start(self) -> None:
         """Initialize all the subclasses"""
-        [win._start() for win in self.window_list]
+        [win.window._start() for win in self.window_list]
 
     def _refresh(self) -> None:
         """Refresh all the sub windows"""
-        [win._refresh() for win in self.window_list]
+        [win.window._refresh() for win in self.window_list if win.display]
         
     def _erase(self) -> None:
         """Erase all the sub windows"""
-        [win._erase() for win  in self.window_list]
+        [win.window._erase() for win in self.window_list]
 
-    def add_window(self, win: Window, weight: int = 1, priority : int = 1, min_dim : int = 1) -> None:
-        """Add a window to the DynamicBox"""
-        self.window_list.append(win)
-        self.weight_list.append(weight)
-        self.priority_list.append(priority)
-        self.display_list.append(True)
+    def add_window(self, win: Window, **kwargs) -> None:
+        """Add a window to the DynamicBox.
+        add_window( win : Window,
+                    weight : int = 1,
+                    priority : int = 1,
+                    min_dimension : int = 0)"""
+        self.window_list.append(BoxSubWindow(win, **kwargs))
 
-    def _normalize_weights(self, max_dim : int) -> List[int]:
+    def _reset_display_of_windows(self) -> None:
+        """Reset all the windows to display True so the solution start clean"""
+        for obj in self.window_list:
+            obj.display = True
+
+    def _get_weights_list(self) -> List[int]:
+        """Return the list of the """
+        return list(map(lambda x: x.weight, filter(lambda x: x.display, self.window_list)))
+
+    def _calculate_dimensions(self, max_dim : int)-> None:
         """Return the list of the dimension of all the windows based on the weights"""
-        weight_total = sum(self.weight_list, 0)
-        weights = list(map(lambda x: int(max_dim * x / weight_total),self.weight_list))
+        weight_total = sum(self._get_weights_list(), 0)
+
+        total_dim : int = 0
+        for obj in self.window_list:
+            if obj.display:
+                obj.actual_dim = int(max_dim * obj.weight / weight_total)
+                total_dim += obj.actual_dim
+            else:
+                obj.actual_dim = 0
+
         # correct the rounding errors giving the columns left to the first window
-        weights[0] += (max_dim - sum(weights, 0))
-        return weights
+        first_obj = [x for x in self.window_list if x.display][0]
+        first_obj.actual_dim += (max_dim - total_dim)
+
+    def _solution_is_not_feasable(self)-> None:
+        for obj in self.window_list:
+            if obj.display and obj.actual_dim > obj.min_dimension:
+                return False
+        return True
+
+    def _shutoff_lowest_priority(self)-> None:
+        lowest = min(self.window_list, key=lambda x: x.priority)
+        lowest.display = False
+
+    def _find_fitting(self, max_dim : int) -> None:
+        # Reset the solution
+        self._reset_display_of_windows()
+        # Calculate an initial solution
+        self._calculate_dimensions(max_dim)
+        # While the solution is not feasable
+        while self._solution_is_not_feasable():
+            # Remove the lowest priority
+            self._shutoff_lowest_priority()
+            # Recalc the solution
+            self._calculate_dimensions(max_dim)
+
 
     def _resize_routine(self, new_x : int = 0, new_y : int = 0) -> None:
         """Method that the Hbox and VBox are supposed to overwrite."""
@@ -55,4 +94,6 @@ class DynamicBox():
         """Move the windows so that the upper left corner is at new_x and new_y"""
         self._resize_routine(new_x, new_y)
 
-
+    def get_default_min_dim(self) -> int:
+        """return the minimum dimension of the graph."""
+        return 0   

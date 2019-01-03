@@ -102,3 +102,10 @@ class Graph(Window):
         self._draw_graph()
         self._print_axis()
         self._refresh_iter()
+
+    def get_default_min_dim(self) -> int:
+        """return the minimum dimension of the graph."""
+        if self.display_border:
+            return 5    
+        else:
+            return 3
