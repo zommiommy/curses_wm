@@ -139,17 +139,22 @@ class Window():
             self.win.addnstr(0, 1, self.title, self.width - 1)
 
     def _refresh(self) -> None:
-        """Method to be overwritten by the subclasses to add the content."""
-        self._refresh_iter()
-
-    #@synchronized
-    def _refresh_iter(self) -> None:
         """Method to redraw the window."""
         if self.win:
+            # Intro
+            self._erase()
+            # Overridden stuff
+            self._refresh_overriden()
+            # Outro
             if self.display_border:
                 self._draw_border()
                 self._draw_title()
             self.win.refresh()
+
+    #@synchronized
+    def _refresh_overriden(self) -> None:
+        """Method to be overwritten by the subclasses to add the content."""
+        pass
 
     def _erase(self) -> None:
         """Cancel all the window."""

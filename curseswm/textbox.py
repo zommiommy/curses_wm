@@ -16,7 +16,6 @@ class TextBox(Window):
     def add_text(self, x : int, y : int, text : str) -> None:
         self.texts.append({"x":x,"y":y,"text":text})
 
-    def _refresh(self) -> None:
+    def _refresh_overriden(self) -> None:
         for t in self.texts:
             self.draw_text(t["x"], t["y"], t["text"])
-        self._refresh_iter()

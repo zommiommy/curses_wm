@@ -95,13 +95,11 @@ class Graph(Window):
                     self.draw_text(x, self.get_mid_row(), self.draw_symbol)
 
 
-    def _refresh(self) -> None:
-        self._erase()
+    def _refresh_overriden(self) -> None:
         self._update_max_min()
         self._print_central_line()
         self._draw_graph()
         self._print_axis()
-        self._refresh_iter()
 
     def get_default_min_dim(self) -> int:
         """return the minimum dimension of the graph."""
