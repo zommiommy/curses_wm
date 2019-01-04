@@ -40,10 +40,13 @@ class DynamicBox():
     def _get_weights_list(self) -> List[int]:
         """Return the list of the """
         return list(map(lambda x: x.weight, filter(lambda x: x.display, self.window_list)))
+    def _get_total_weights(self) -> int:
+        """Return the sum of all the weights"""
+        return sum(self._get_weights_list(), 0)
 
-    def _calculate_dimensions(self, max_dim : int)-> None:
+    def _calculate_dimensions(self, max_dim : int) -> None:
         """Return the list of the dimension of all the windows based on the weights"""
-        weight_total = sum(self._get_weights_list(), 0)
+        weight_total = self._get_total_weights()
 
         total_dim : int = 0
         for obj in self.window_list:
@@ -64,6 +67,7 @@ class DynamicBox():
         return True
 
     def _shutoff_lowest_priority(self)-> None:
+        """Set the window with the lowest priority display attribute to false """
         lowest = min(self.window_list, key=lambda x: x.priority)
         lowest.display = False
 
@@ -95,5 +99,5 @@ class DynamicBox():
         self._resize_routine(new_x, new_y)
 
     def get_default_min_dim(self) -> int:
-        """return the minimum dimension of the graph."""
+        """return the minimum dimension of a dynamic box."""
         return 0   
