@@ -76,7 +76,7 @@ class DynamicBox():
             if obj.display:
                 obj.actual_dim = int(max_dim * obj.weight / weight_total)
             else:
-                obj.actual_dim = 0
+                obj.actual_dim = 1
 
         self._correct_dimensions(max_dim)
 
@@ -94,7 +94,7 @@ class DynamicBox():
 
     def _shutoff_lowest_priority(self)-> None:
         """Set the window with the lowest priority display attribute to false """
-        lowest = min(self.window_list, key=lambda x: x.priority)
+        lowest = min((win for win in self.window_list if win.display), key=lambda x: x.priority)
         lowest.display = False
 
     def _find_fitting(self, max_dim : int) -> None:
@@ -126,4 +126,4 @@ class DynamicBox():
 
     def get_default_min_dim(self) -> int:
         """return the minimum dimension of a dynamic box."""
-        return 0   
+        return 1 
