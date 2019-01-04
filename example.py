@@ -3,7 +3,6 @@ from math import sin
 from time import sleep
 from curseswm import *
 
-
 # Create the Cli
 cli = CLI()
 # Create some tabs and add them to the cli
@@ -42,7 +41,7 @@ last_box.add_window(network)
 processes = TextBox("Proceses")
 last_box.add_window(processes)
 
-main_box.add_window(last_box)
+main_box.add_window(last_box, priority=0, min_dimension=10)
 
 tab.set_window(main_box)
 

@@ -1,4 +1,5 @@
 
+import sys
 import curses
 from . import colours
 
@@ -10,7 +11,12 @@ class Screen():
     def start(self, refresh_rate : int = 24):
         """Initialize the curses and the terminal."""
         # Setup the screen
-        self.stdscr = curses.initscr()
+        try:
+            self.stdscr = curses.initscr()
+        except curses.error:
+            print("Sorry, your terminal do not support curses.", file=sys.stderr)
+            sys.exit(-1)
+            
         # Enable colors
         if curses.has_colors():
             curses.start_color()
