@@ -38,33 +38,53 @@ class DynamicBox():
             obj.display = True
 
     def _get_weights_list(self) -> List[int]:
-        """Return the list of the """
-        return list(map(lambda x: x.weight, filter(lambda x: x.display, self.window_list)))
+        """Return the list of the weights"""
+        return [x.weight for x in self.window_list if x.display]
+
     def _get_total_weights(self) -> int:
         """Return the sum of all the weights"""
         return sum(self._get_weights_list(), 0)
+
+    def _get_actual_dim_list(self) -> List[int]:
+        """Return the list of the actual_dims"""
+        return [x.actual_dim for x in self.window_list if x.display]
+
+    def _find_first_displayed_window(self) -> BoxSubWindow:
+        """Return the first window in list with display = True"""
+        return next((x for x in self.window_list if x.display))
+
+    def _get_total_actual_dim(self) -> int:
+        """Return the sum of all the actual_dim of all the windows in list with display set to True"""
+        return sum(self._get_actual_dim_list(),0)
+
+    def _correct_dimensions(self, max_dim : int) -> None:
+        """correct the rounding errors giving the columns left to the first window"""
+        current_dim = self._get_total_actual_dim()
+        first_obj = self._find_first_displayed_window()
+        # Add the error to the first window
+        first_obj.actual_dim += (max_dim - current_dim)
 
     def _calculate_dimensions(self, max_dim : int) -> None:
         """Return the list of the dimension of all the windows based on the weights"""
         weight_total = self._get_total_weights()
 
-        total_dim : int = 0
         for obj in self.window_list:
             if obj.display:
                 obj.actual_dim = int(max_dim * obj.weight / weight_total)
-                total_dim += obj.actual_dim
             else:
                 obj.actual_dim = 0
 
-        # correct the rounding errors giving the columns left to the first window
-        first_obj = [x for x in self.window_list if x.display][0]
-        first_obj.actual_dim += (max_dim - total_dim)
+        self._correct_dimensions(max_dim)
 
-    def _solution_is_not_feasable(self)-> None:
-        for obj in self.window_list:
-            if obj.display and obj.actual_dim > obj.min_dimension:
-                return False
-        return True
+    def _solution_is_feasable(self)-> None:
+        """Check if all the displayed window have the actual dim bigger or equal than their min dimension."""
+        # all(display => actual_dim >= min_dim)
+        # any( not (display => actual_dim >= min_dim))
+        # any( not (not display or actual_dim >= min_dim))
+        # any(display and not actual_dim >= min_dim))
+        # any(display and actual_dim < min_dim))
+        gen = (obj.display and obj.actual_dim < obj.min_dimension for obj in self.window_list)
+        return not any(gen)
 
     def _shutoff_lowest_priority(self)-> None:
         """Set the window with the lowest priority display attribute to false """
@@ -77,7 +97,7 @@ class DynamicBox():
         # Calculate an initial solution
         self._calculate_dimensions(max_dim)
         # While the solution is not feasable
-        while self._solution_is_not_feasable():
+        while not self._solution_is_feasable():
             # Remove the lowest priority
             self._shutoff_lowest_priority()
             # Recalc the solution
