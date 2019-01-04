@@ -30,5 +30,22 @@ class TestUM(unittest.TestCase):
         self.dyn._correct_dimensions(30)
         self.assertEqual(self.dyn._get_total_actual_dim(),30)
 
+        self.assertEqual(self.dyn._solution_is_feasable(),False)
+        self.dyn.window_list[0].actual_dim = 4
+        self.dyn.window_list[1].actual_dim = 4
+        self.dyn.window_list[2].actual_dim = 5
+        self.assertEqual(self.dyn._solution_is_feasable(),True)
+
+        self.dyn._reset_display_of_windows()
+        self.dyn._shutoff_lowest_priority()
+        self.assertEqual(self.dyn.window_list[0].display,True)
+        self.assertEqual(self.dyn.window_list[1].display,True)
+        self.assertEqual(self.dyn.window_list[2].display,False)
+
+        self.assertEqual(self.dyn._find_first_displayed_window().display,True)
+
+
+
+
 if __name__ == '__main__':
     unittest.main()

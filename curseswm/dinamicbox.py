@@ -18,7 +18,7 @@ class DynamicBox():
 
     def _refresh(self) -> None:
         """Refresh all the sub windows"""
-        [win.window._refresh() for win in self.window_list if win.display]
+        [win.window._refresh() for win in self.window_list if win.display ]
         
     def _erase(self) -> None:
         """Erase all the sub windows"""
@@ -51,7 +51,10 @@ class DynamicBox():
 
     def _find_first_displayed_window(self) -> BoxSubWindow:
         """Return the first window in list with display = True"""
-        return next((x for x in self.window_list if x.display))
+        try:
+            return next((x for x in self.window_list if x.display))
+        except StopIteration:
+            return None
 
     def _get_total_actual_dim(self) -> int:
         """Return the sum of all the actual_dim of all the windows in list with display set to True"""
@@ -61,8 +64,9 @@ class DynamicBox():
         """correct the rounding errors giving the columns left to the first window"""
         current_dim = self._get_total_actual_dim()
         first_obj = self._find_first_displayed_window()
-        # Add the error to the first window
-        first_obj.actual_dim += (max_dim - current_dim)
+        if first_obj:
+            # Add the error to the first window
+            first_obj.actual_dim += (max_dim - current_dim)
 
     def _calculate_dimensions(self, max_dim : int) -> None:
         """Return the list of the dimension of all the windows based on the weights"""
@@ -78,7 +82,9 @@ class DynamicBox():
 
     def _solution_is_feasable(self)-> None:
         """Check if all the displayed window have the actual dim bigger or equal than their min dimension."""
+        # Original statement
         # all(display => actual_dim >= min_dim)
+        # Derivation of a faster one (the solution will be unfeasible most of the time so any is better than all)
         # not any( not (display => actual_dim >= min_dim))
         # not any( not (not display or actual_dim >= min_dim))
         # not any(display and not actual_dim >= min_dim))
