@@ -79,10 +79,10 @@ class DynamicBox():
     def _solution_is_feasable(self)-> None:
         """Check if all the displayed window have the actual dim bigger or equal than their min dimension."""
         # all(display => actual_dim >= min_dim)
-        # any( not (display => actual_dim >= min_dim))
-        # any( not (not display or actual_dim >= min_dim))
-        # any(display and not actual_dim >= min_dim))
-        # any(display and actual_dim < min_dim))
+        # not any( not (display => actual_dim >= min_dim))
+        # not any( not (not display or actual_dim >= min_dim))
+        # not any(display and not actual_dim >= min_dim))
+        # not any(display and actual_dim < min_dim))
         gen = (obj.display and obj.actual_dim < obj.min_dimension for obj in self.window_list)
         return not any(gen)
 
