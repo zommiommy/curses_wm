@@ -126,4 +126,4 @@ class DynamicBox():
 
     def get_default_min_dim(self) -> int:
         """return the minimum dimension of a dynamic box."""
-        return 1 
+        return min((x.window.get_default_min_dim() for x in self.window_list))

@@ -6,7 +6,7 @@ from curseswm import *
 # Create the Cli
 cli = CLI()
 # Create some tabs and add them to the cli
-tab = Tab("Main")
+tab = Tab("gotop")
 cli.add_tab(tab)
 
 tab2 = Tab("Networks")
@@ -14,6 +14,11 @@ cli.add_tab(tab2)
 
 tab3 = Tab("Threads")
 cli.add_tab(tab3)
+
+pb = ProgressBar("ProgressBar")
+
+tab2.set_window(pb)
+
 # Create a vertical box
 main_box = VBox()
 # Create a graph and add it to the vertical box
@@ -54,10 +59,12 @@ sleep(1)
 
 
 i = 0
+n = 1000
 
 while True:
     disk.set_text(disk.get_first_col(),disk.get_first_row(),"Time Enlapsed %d"%i)
     tab2.set_error_state(int(i/ 30) % 2 == 1)
+    pb.set_percentage((i % n) / n)
     g.add_point(sin(i/20))
 
     # Print position methods results

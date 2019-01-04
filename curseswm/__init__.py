@@ -6,6 +6,7 @@ from .tab import Tab
 from .textbox import TextBox
 from .window import Window
 from .dinamicbox import DynamicBox
+from .progressbar import ProgressBar
 from . import colours
 
-__all__ = ["CLI", "Tab", "HBox", "VBox", "Graph", "TextBox", "colours", "Window", "DynamicBox"]
+__all__ = ["CLI", "Tab", "HBox", "VBox", "Graph", "TextBox", "colours", "Window", "DynamicBox", "ProgressBar"]
