@@ -15,6 +15,3 @@ class VBox(DynamicBox):
                 obj.window.resize(self.width, obj.actual_dim)
                 obj.window._move_window(new_x, y)
                 y += obj.actual_dim
-            else:
-                obj.window.resize(1,1)
-                obj.window._move_window(0,0)

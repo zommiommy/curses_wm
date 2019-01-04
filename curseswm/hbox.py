@@ -14,6 +14,3 @@ class HBox(DynamicBox):
                 obj.window.resize(obj.actual_dim, self.height)
                 obj.window._move_window(x,new_y)
                 x += obj.actual_dim
-            else:
-                obj.window.resize(1,1)
-                obj.window._move_window(0,0)
