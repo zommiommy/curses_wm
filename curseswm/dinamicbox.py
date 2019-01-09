@@ -37,6 +37,11 @@ class DynamicBox():
         for obj in self.window_list:
             obj.display = True
 
+    def _reset_actual_dim_of_windows(self) -> None:
+        """Reset all the windows assigned dimensions."""
+        for obj in self.window_list:
+            obj.actual_dim = 0
+
     def _get_weights_list(self) -> List[int]:
         """Return the list of the weights"""
         return [x.weight for x in self.window_list if x.display]
@@ -64,23 +69,56 @@ class DynamicBox():
         """correct the rounding errors giving the columns left to the first window"""
         current_dim = self._get_total_actual_dim()
         first_obj = self._find_first_displayed_window()
-        if first_obj:
+        if first_obj and max_dim >= current_dim:
             # Add the error to the first window
             first_obj.actual_dim += (max_dim - current_dim)
 
     def _calculate_dimensions(self, max_dim : int) -> None:
         """Return the list of the dimension of all the windows based on the weights"""
-        weight_total = self._get_total_weights()
+        # Get all the windows left to be assigned
+        free_objs = [x for x in self.window_list if x.display and x.actual_dim == 0]
+        # Get the weights of the windows left to be assigned
+        weight_total = sum((x.weight for x in free_objs),0)
+        # Remove the space for the already settled windows from the assignable space
+        max_dim = max_dim - sum((x.actual_dim for x in self.window_list),0)
 
         for obj in self.window_list:
-            if obj.display:
+            if obj.display and obj.actual_dim == 0:
                 obj.actual_dim = int(max_dim * obj.weight / weight_total)
-            else:
-                obj.actual_dim = 1
 
         self._correct_dimensions(max_dim)
 
-    def _solution_is_feasable(self)-> None:
+    def _max_casting_routine(self):
+        """Clip to the max the windows that violate the max constraint and reset the correct ones."""
+        for x in self.window_list:
+            # If the window violates his constraint or it's have already been setted to the max, set it to the max.
+            if x.actual_dim >= x.max_dimension:
+                x.actual_dim = x.max_dimension
+            else:
+                # Else reset it to 0 so that at the next iteration can be assigned
+                x.actual_dim = 0
+
+    def _find_max_fitting(self, max_dim : int) -> None:
+        """Find a fitting so that all the max constraint are respected"""
+        # Calculate a solution
+        self._reset_actual_dim_of_windows()
+        self._calculate_dimensions(max_dim)
+        # While it's not feasible then cast to the max the windows that don't satisfies
+        #  the constraints and try to recalculate the solution.
+        while not self._solution_is_max_feasible() or not self._solution_is_inside_bounds(max_dim):
+            # If the values are at max and their sums is bigger than the max_dim then shutoff a window
+            if not self._solution_is_inside_bounds(max_dim):
+                self._shutoff_lowest_priority()
+            # Cast to the max if some window violate the max constraint
+            self._max_casting_routine()
+            # with those new informations try to find a new solutions
+            self._calculate_dimensions(max_dim)
+
+    def _solution_is_inside_bounds(self, max_dim):
+        """Return if the total sum of the actual dim of the windows is less than the max_dim or else."""
+        return self._get_total_actual_dim() <= max_dim
+
+    def _solution_is_min_feasible(self)-> None:
         """Check if all the displayed window have the actual dim bigger or equal than their min dimension."""
         # Original statement
         # all(display => actual_dim >= min_dim)
@@ -92,22 +130,33 @@ class DynamicBox():
         gen = (obj.display and obj.actual_dim < obj.min_dimension for obj in self.window_list)
         return not any(gen)
 
+    def _solution_is_max_feasible(self)-> None:
+        """Check if all the displayed window have the actual dim bigger or equal than their min dimension."""
+        # For the derivation look at the min feasible
+        gen = (obj.display and obj.actual_dim > obj.max_dimension for obj in self.window_list)
+        return not any(gen)
+
     def _shutoff_lowest_priority(self)-> None:
         """Set the window with the lowest priority display attribute to false """
         lowest = min((win for win in self.window_list if win.display), key=lambda x: x.priority)
         lowest.display = False
 
     def _find_fitting(self, max_dim : int) -> None:
+        """Find an assignment of dimension so that all the min and max constraint are satisfied.
+        This is a generalized weighted knapsack with priority and can be formulated as a shortest path problem but
+        the simplex or Dijkstra seems to computationally heavy to resolve in real time so a max-min greedy approach was chosen.
+        This algorithm start with all the window displayed than find a solution that satisfies the max constraint and then
+        check if the solution satisfies the min constraints. this has complexity O(w^2) where w is the number of windows."""
         # Reset the solution
         self._reset_display_of_windows()
         # Calculate an initial solution
-        self._calculate_dimensions(max_dim)
-        # While the solution is not feasable
-        while not self._solution_is_feasable():
+        self._find_max_fitting(max_dim)
+        # While the solution is not feasible
+        while not self._solution_is_min_feasible():
             # Remove the lowest priority
             self._shutoff_lowest_priority()
             # Recalc the solution
-            self._calculate_dimensions(max_dim)
+            self._find_max_fitting(max_dim)
 
 
     def _resize_routine(self, new_x : int = 0, new_y : int = 0) -> None:
@@ -127,3 +176,7 @@ class DynamicBox():
     def get_default_min_dim(self) -> int:
         """return the minimum dimension of a dynamic box."""
         return min((x.window.get_default_min_dim() for x in self.window_list))
+
+    def get_default_max_dim(self) -> int:
+        """return the minimum dimension of a dynamic box."""
+        return sum((x.window.get_default_max_dim() for x in self.window_list),0)
