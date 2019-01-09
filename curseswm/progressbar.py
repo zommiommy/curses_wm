@@ -10,37 +10,37 @@ class ProgressBar(Window):
         "htop":{
             "update_sequence":"|",
             "empty_seq":" ",
-            "format": "{name} [{progress_bar}] {percentage:.1f}%",
+            "format": "{name} [{progress_bar}{empty_bar}{percentage:.1f}%]",
             "colour": TextColour
         },
         "apt-get":{
             "update_sequence":"#",
             "empty_seq":"-",
-            "format": "{name}:[{percentage:.0f}%] [{progress_bar}]",
+            "format": "{name}:[{percentage:.0f}%] [{progress_bar}{empty_bar}]",
             "colour": TextColour
         },
         "apt-get2":{
             "update_sequence":"0123456789#",
             "empty_seq":"-",
-            "format": "{name}:[{percentage:.0f}%] [{progress_bar}]",
+            "format": "{name}:[{percentage:.0f}%] [{progress_bar}{empty_bar}]",
             "colour": TextColour
         },
         "pacman":{
             "update_sequence":"#",
             "empty_seq":"-",
-            "format": "{name} [{progress_bar}] {percentage:.0f}%",
+            "format": "{name} [{progress_bar}{empty_bar}] {percentage:.0f}%",
             "colour": TextColour
         },
         "smooth":{
             "update_sequence": " ▏▎▍▌▋▊▉█",
             "empty_seq":" ",
-            "format": "{name} | {percentage:.1f}% | {progress_bar}>",
+            "format": "{name} | {percentage:.1f}% | {progress_bar}{empty_bar}>",
             "colour": TextColour
         },
         "equal":{
             "update_sequence": ">=",
             "empty_seq":".",
-            "format": "{name} [{progress_bar}]",
+            "format": "{name} [{progress_bar}{percentage:.1f}%{empty_bar}]",
             "colour": TextColour
         }
     }
@@ -82,7 +82,7 @@ class ProgressBar(Window):
         text_range = self.get_last_col() - self.get_first_col() + 1
 
         # subtract the space for the formatting from the bar space
-        base_string = self.format.format(name=self.name,progress_bar="",percentage=100*self.percentage)
+        base_string = self.format.format(name=self.name,progress_bar="",empty_bar="",percentage=100*self.percentage)
         text_range -= len(base_string)
 
         text_subrange = text_range * len(self.update_sequence)
@@ -94,9 +94,10 @@ class ProgressBar(Window):
 
         pbar = self.update_sequence[-1] * (fill_index)
         pbar += self.update_sequence[half_char]
-        pbar += self.empty_seq * (text_range - fill_index - 1)
 
-        output = self.format.format(name=self.name,progress_bar=pbar,percentage=100*self.percentage)
+        empty_bar = self.empty_seq * (text_range - fill_index - 1)
+
+        output = self.format.format(name=self.name,progress_bar=pbar,empty_bar=empty_bar,percentage=100*self.percentage)
 
         with self.colour(self.win):
             self.draw_text(self.get_first_col(),self.get_first_row(), output)

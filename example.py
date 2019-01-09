@@ -21,9 +21,11 @@ progress_bars = VBox()
 pb = ProgressBar("# of pirates in the world","Smooth-style",style="smooth")
 pb2 = ProgressBar("hearth Cooling","Apt-get-style",style="apt-get")
 pb3 = ProgressBar("# of pastafarianism adepts","Htop-style",style="htop")
+pb4 = ProgressBar("# of cows","Equal-style",style="equal")
 progress_bars.add_window(pb)
 progress_bars.add_window(pb2)
 progress_bars.add_window(pb3)
+progress_bars.add_window(pb4)
 tab2.set_window(progress_bars)
 
 # Create a vertical box
@@ -74,6 +76,7 @@ while True:
     pb.set_percentage((i % n) / n)
     pb2.set_percentage((i % n) / n)
     pb3.set_percentage((i % n) / n)
+    pb4.set_percentage((i % n) / n)
     g.add_point(sin(i/20))
 
     # Print position methods results
