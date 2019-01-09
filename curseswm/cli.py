@@ -19,6 +19,7 @@ class CLI(Thread):
         self.tab_list = []
         self.tab_index = 0
         self.refresh_rate = None
+        self.display_status_bar = True
         self.key_handlers = {
             ord("q"): self._quit,
             KEY_RESIZE: self._resize,
@@ -35,6 +36,11 @@ class CLI(Thread):
         """Pass the reference of the screen to all the tabs and start them"""
         [tab._start() for tab in self.tab_list]
 
+    def enable_status_bar(self):
+        self.display_status_bar = True
+
+    def disable_status_bar(self):
+        self.display_status_bar = False
 
     def _set_error_attr(self, tab : Tab, index : int) -> None:
         if index == self.tab_index:
@@ -64,6 +70,9 @@ class CLI(Thread):
     @horrible_workaround
     def _print_status_bar(self) -> None:
         """Print the status bar."""
+        if not self.display_status_bar:
+            return
+
         last_line = self.height - 1
         x = 0
         for index, tab in enumerate(self.tab_list):
@@ -101,7 +110,12 @@ class CLI(Thread):
         """Erase the screen, call the resize method of all the tabs and update the CLI dimension"""
         self.height, self.width = self.stdscr.getmaxyx()
         self._erase()
-        [tab.resize(self.width, self.height - 1) for tab in self.tab_list]
+
+        height = self.height
+        if self.display_status_bar:
+            height -= 1
+
+        [tab.resize(self.width, height) for tab in self.tab_list]
         self._refresh()
         
     def add_tab(self, tab: Tab) -> None:

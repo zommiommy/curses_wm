@@ -5,6 +5,8 @@ from curseswm import *
 
 # Create the Cli
 cli = CLI()
+# Optionally disable the display of the status bar on the bottom of the screen
+#cli.disable_status_bar()
 # Create some tabs and add them to the cli
 tab = Tab("gotop")
 cli.add_tab(tab)
