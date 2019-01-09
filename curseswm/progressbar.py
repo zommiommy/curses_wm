@@ -55,6 +55,8 @@ class ProgressBar(Window):
             format: str,
             colour: Colour)
         the format, empy_seq and update_sequence will be inherited from the default or chosen style if not specified."""
+        # Set the default display_border to false
+        kwargs.setdefault("display_border",False)
         super().__init__(title, **kwargs)
         self.name = name
         self.percentage : float = 0.0
@@ -101,3 +103,11 @@ class ProgressBar(Window):
 
         with self.colour(self.win):
             self.draw_text(self.get_first_col(),self.get_first_row(), output)
+
+
+    def get_default_max_dim(self) -> int:
+        """Return the MAXIMUM dimension at which the window has sense, 3 means that bigger than 3x3 the window is useless."""
+        if self.display_border:
+            return 3
+        else:
+            return 1

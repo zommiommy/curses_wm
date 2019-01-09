@@ -14,3 +14,7 @@ class BoxSubWindow():
         self.min_dimension : int =  kwargs.get("min_dimension",win.get_default_min_dim())
         if self.min_dimension < 0:
             self.min_dimension = 0
+
+        self.max_dimension : int =  kwargs.get("max_dimension",win.get_default_max_dim())
+        if self.max_dimension < 0:
+            self.max_dimension = 0

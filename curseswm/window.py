@@ -168,9 +168,13 @@ class Window():
         self.win.resize(self.height, self.width)
 
     def get_default_min_dim(self) -> int:
-        """Return the minimum dimension at which the window has sense, 3 means that smaller than 3x3 the window is useless."""
+        """Return the MINIMUM dimension at which the window has sense, 3 means that smaller than 3x3 the window is useless."""
         if self.display_border:
             return 3
         else:
             return 1
+
+    def get_default_max_dim(self) -> int:
+        """Return the MAXIMUM dimension at which the window has sense, 3 means that bigger than 3x3 the window is useless."""
+        return float("inf")
 
