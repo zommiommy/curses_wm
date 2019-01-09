@@ -2,6 +2,7 @@
 import curses
 
 from .window import Window
+from .colours import *
 
 class ProgressBar(Window):
 
@@ -9,32 +10,38 @@ class ProgressBar(Window):
         "htop":{
             "update_sequence":"|",
             "empty_seq":" ",
-            "format": "{name} [{progress_bar}] {percentage:.1f}%"
+            "format": "{name} [{progress_bar}] {percentage:.1f}%",
+            "colour": TextColour
         },
         "apt-get":{
             "update_sequence":"#",
             "empty_seq":"-",
-            "format": "{name}:[{percentage:.0f}%] [{progress_bar}]"
+            "format": "{name}:[{percentage:.0f}%] [{progress_bar}]",
+            "colour": TextColour
         },
         "apt-get2":{
             "update_sequence":"0123456789#",
             "empty_seq":"-",
-            "format": "{name}:[{percentage:.0f}%] [{progress_bar}]"
+            "format": "{name}:[{percentage:.0f}%] [{progress_bar}]",
+            "colour": TextColour
         },
         "pacman":{
             "update_sequence":"#",
             "empty_seq":"-",
-            "format": "{name} [{progress_bar}] {percentage:.0f}%"
+            "format": "{name} [{progress_bar}] {percentage:.0f}%",
+            "colour": TextColour
         },
         "smooth":{
             "update_sequence": " ▏▎▍▌▋▊▉█",
             "empty_seq":" ",
-            "format": "{name} |{progress_bar}> {percentage:.1f}%"
+            "format": "{name} | {percentage:.1f}% | {progress_bar}>",
+            "colour": TextColour
         },
         "equal":{
-            "update_sequence": "=",
+            "update_sequence": ">=",
             "empty_seq":".",
-            "format": "{name} [{progress_bar}]"
+            "format": "{name} [{progress_bar}]",
+            "colour": TextColour
         }
     }
 
@@ -45,18 +52,20 @@ class ProgressBar(Window):
             style: str,
             update_sequence: str,
             empty_seq: str,
-            format: str)
+            format: str,
+            colour: Colour)
         the format, empy_seq and update_sequence will be inherited from the default or chosen style if not specified."""
         super().__init__(title, **kwargs)
         self.name = name
         self.percentage : float = 0.0
 
         # Style setting
-        self.style = self.styles[kwargs.get("style",list(self.styles.keys())[0])]
+        self.style = self.styles[kwargs.get("style","smooth")]
         # Style expansion
         self.update_sequence = kwargs.get("update_sequence",self.style["update_sequence"])
         self.empty_seq = kwargs.get("empty_seq",self.style["empty_seq"])
         self.format = kwargs.get("format",self.style["format"])
+        self.colour = kwargs.get("colour",self.style["colour"])
 
     def set_percentage(self, percentage : float) -> None:
         """Set the percentage of completion, it must be a float between 0.0 and 1.0 """
@@ -89,4 +98,5 @@ class ProgressBar(Window):
 
         output = self.format.format(name=self.name,progress_bar=pbar,percentage=100*self.percentage)
 
-        self.draw_text(self.get_first_col(),self.get_first_row(), output)
+        with self.colour(self.win):
+            self.draw_text(self.get_first_col(),self.get_first_row(), output)
