@@ -15,9 +15,14 @@ cli.add_tab(tab2)
 tab3 = Tab("Threads")
 cli.add_tab(tab3)
 
-pb = ProgressBar("ProgressBar")
-
-tab2.set_window(pb)
+progress_bars = VBox()
+pb = ProgressBar("# of pirates in the world","Smooth-style",style="smooth")
+pb2 = ProgressBar("hearth Cooling","Apt-get-style",style="apt-get")
+pb3 = ProgressBar("# of pastafarianism adepts","Htop-style",style="htop")
+progress_bars.add_window(pb)
+progress_bars.add_window(pb2)
+progress_bars.add_window(pb3)
+tab2.set_window(progress_bars)
 
 # Create a vertical box
 main_box = VBox()
@@ -65,6 +70,8 @@ while True:
     disk.set_text(disk.get_first_col(),disk.get_first_row(),"Time Enlapsed %d"%i)
     tab2.set_error_state(int(i/ 30) % 2 == 1)
     pb.set_percentage((i % n) / n)
+    pb2.set_percentage((i % n) / n)
+    pb3.set_percentage((i % n) / n)
     g.add_point(sin(i/20))
 
     # Print position methods results
