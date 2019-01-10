@@ -1,14 +1,20 @@
 # curses_wm
 a windows and tabs manager based on curses inspired by the design of gotop https://github.com/cjbassi/gotop
 
-Example of usage:
+![](https://github.com/zommiommy/curses_wm/blob/master/screen.png?raw=true)
+
+Example of the code that generate the image above:
 ```python
-
 from math import sin
+from time import sleep
+from curseswm import *
 
+# Create the Cli
 cli = CLI()
-
-tab = Tab("Overview")
+# Optionally disable the display of the status bar on the bottom of the screen
+#cli.disable_status_bar()
+# Create some tabs and add them to the cli
+tab = Tab("gotop")
 cli.add_tab(tab)
 
 tab2 = Tab("Networks")
@@ -17,41 +23,92 @@ cli.add_tab(tab2)
 tab3 = Tab("Threads")
 cli.add_tab(tab3)
 
+progress_bars = VBox()
+pb = ProgressBar("# of pirates in the world","Smooth-style",style="smooth")
+pb2 = ProgressBar("hearth Cooling","Apt-get-style",style="apt-get")
+pb3 = ProgressBar("# of pastafarianism adepts","Htop-style",style="htop")
+pb4 = ProgressBar("# of cows","Equal-style",style="equal")
+progress_bars.add_window(pb)
+progress_bars.add_window(pb2)
+progress_bars.add_window(pb3)
+progress_bars.add_window(pb4)
+tab2.set_window(progress_bars)
 
-w0 = TextBox("Timer")
-w1 = Window("Windows 1")
-w2 = Window("Windows 2")
-w3 = Window("Windows 3")
-w4 = TextBox("TextBox 4")
-g = Graph("Graph Test")
-w6 = Window("Windows 6")
+# Create a vertical box
+main_box = VBox()
+# Create a graph and add it to the vertical box
+g = Graph("Cpu Usage")
+main_box.add_window(g)
 
-w4.set_text(w4.get_first_col() + 2,w4.get_first_row() + 2,"Test Text 3")
+# Create a horizontal box
+central_box = HBox()
 
-v = VBox()
-v.add_window(g,weight=1)
+disk_temp_box = VBox()
+disk = TextBox("Disk Usage")
+temp = TextBox("Temperatures")
+disk_temp_box.add_window(disk)
+disk_temp_box.add_window(temp)
 
-h = HBox()
-h.add_window(w4,weight=1)
-h.add_window(w0,weight=1)
+central_box.add_window(disk_temp_box)
+mem = TextBox("Memory Usage")
+central_box.add_window(mem, weight=2)
 
-v.add_window(h,weight=2)
+main_box.add_window(central_box)
 
-tab.set_window(v)
+last_box = HBox()
+network = TextBox("Network Usage")
+last_box.add_window(network)
+processes = TextBox("Proceses")
+last_box.add_window(processes)
 
-tab2.set_window(w2)
+main_box.add_window(last_box, priority=0)
 
-tab3.set_window(w3)
+tab.set_window(main_box)
 
+
+cli.set_refresh_rate(60)
 cli.start()
 
 sleep(1)
 
+
+
 i = 0
+n = 1000
+
 while True:
-    w0.set_text(w0.get_first_col(),w0.get_first_row(),"Time Enlapsed %d"%i)
-    tab2.set_error_state(i % 2 == 1)
-    g.add_point(sin(i/20))
+    disk.set_text(disk.get_first_col(),disk.get_first_row(),"Time Enlapsed %d"%i)
+    tab2.set_error_state(int(i/ 30) % 2 == 1)
+    pb.set_percentage((i % n) / n)
+    pb2.set_percentage((i % n) / n)
+    pb3.set_percentage((i % n) / n)
+    pb4.set_percentage((i % n) / n)
+    g.add_point(sin(i/30))
+
+    # Print position methods results
+    processes.set_text(processes.get_first_col(), processes.get_first_row(), str((
+        processes.get_first_col(),
+        processes.get_mid_col(),
+        processes.get_last_col())))
+    processes.add_text(processes.get_first_col(), processes.get_first_row(1), str((
+        processes.get_first_row(),
+        processes.get_mid_row(),
+        processes.get_last_row())))
+    processes.add_text(processes.get_first_col(), processes.get_first_row(2), str(processes.get_shape()))
+        
+    # Test of all the combination of prosition mehtod
+    c = "abcd"
+    mem.set_text(mem.get_first_col(),mem.get_first_row(),c)
+    mem.add_text(mem.get_first_col(),mem.get_mid_row(),c)
+    mem.add_text(mem.get_first_col(),mem.get_last_row(),c)
+    mem.add_text(mem.get_mid_col(),mem.get_first_row(),c)
+    mem.add_text(mem.get_mid_col(),mem.get_mid_row(),c)
+    mem.add_text(mem.get_mid_col(),mem.get_last_row(),c)
+    mem.add_text(mem.get_last_col(),mem.get_first_row(),c)
+    mem.add_text(mem.get_last_col(),mem.get_mid_row(),c)
+    mem.add_text(mem.get_last_col(),mem.get_last_row(),c)
+
     i += 1
-    sleep(1/10)
+    sleep(1/60)
+
 ```
