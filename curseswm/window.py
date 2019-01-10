@@ -154,6 +154,7 @@ class Window():
     #@synchronized
     def _refresh_overriden(self) -> None:
         """Method to be overwritten by the subclasses to add the content."""
+        # pass and not raise NotImplementedError so that Windows can be used for testing purposes
         pass
 
     def _erase(self) -> None:

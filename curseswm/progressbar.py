@@ -38,9 +38,9 @@ class ProgressBar(Window):
             "colour": TextColour
         },
         "equal":{
-            "update_sequence": ">=",
+            "update_sequence": "=",
             "empty_seq":".",
-            "format": "{name} [{progress_bar}{percentage:.1f}%{empty_bar}]",
+            "format": "{name} [{progress_bar}>{percentage:.1f}%{empty_bar}]",
             "colour": TextColour
         }
     }
