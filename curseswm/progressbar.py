@@ -1,5 +1,6 @@
 
 import curses
+from typing import Dict, Union
 
 from .window import Window
 from .colours import *
@@ -105,9 +106,9 @@ class ProgressBar(Window):
             self.draw_text(self.get_first_col(),self.get_first_row(), output)
 
 
-    def get_default_max_dim(self) -> int:
-        """Return the MAXIMUM dimension at which the window has sense, 3 means that bigger than 3x3 the window is useless."""
+    def get_default_max_dim(self) -> Dict[str,Union[float,int]]:
+        """Return the MAXIMUM dimension at which the window has sense."""
         if self.display_border:
-            return 3
+            return {"x":float("inf"),"y":3}
         else:
-            return 1
+            return {"x":float("inf"),"y":1}

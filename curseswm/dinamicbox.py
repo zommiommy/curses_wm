@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import List, Union, Dict
 
 from .window import Window
 from .boxsubwindow import BoxSubWindow
@@ -29,7 +29,7 @@ class DynamicBox():
         add_window( win : Window,
                     weight : int = 1,
                     priority : int = 1,
-                    min_dimension : int = 0)"""
+                    min_dimension : int = win.get_default_min_dim())"""
         self.window_list.append(BoxSubWindow(win, **kwargs))
 
     def _reset_display_of_windows(self) -> None:
@@ -60,7 +60,7 @@ class DynamicBox():
             # return the first window that is displayed and that have the actual_dim not set to the max dim so that in the case
             # of all windows setted with the max this will return None and the _correct_dimensions will not trigger
             # else it will get into an endless loop of correcting the dim and resetting it to the max.
-            return next((x for x in self.window_list if x.display and x.actual_dim != x.max_dimension))
+            return next((x for x in self.window_list if x.display and x.actual_dim != self.get_win_max_dim(x)))
         except StopIteration:
             return None
 
@@ -95,8 +95,8 @@ class DynamicBox():
         """Clip to the max the windows that violate the max constraint and reset the correct ones."""
         for x in self.window_list:
             # If the window violates his constraint or it's have already been setted to the max, set it to the max.
-            if x.actual_dim >= x.max_dimension:
-                x.actual_dim = x.max_dimension
+            if x.actual_dim >= self.get_win_max_dim(x):
+                x.actual_dim = self.get_win_max_dim(x)
             else:
                 # Else reset it to 0 so that at the next iteration can be assigned
                 x.actual_dim = 0
@@ -130,13 +130,13 @@ class DynamicBox():
         # not any( not (not display or actual_dim >= min_dim))
         # not any(display and not actual_dim >= min_dim))
         # not any(display and actual_dim < min_dim))
-        gen = (obj.display and obj.actual_dim < obj.min_dimension for obj in self.window_list)
+        gen = (obj.display and obj.actual_dim < self.get_win_min_dim(obj) for obj in self.window_list)
         return not any(gen)
 
     def _solution_is_max_feasible(self)-> None:
         """Check if all the displayed window have the actual dim bigger or equal than their min dimension."""
         # For the derivation look at the min feasible
-        gen = (obj.display and obj.actual_dim > obj.max_dimension for obj in self.window_list)
+        gen = (obj.display and obj.actual_dim > self.get_win_max_dim(obj) for obj in self.window_list)
         return not any(gen)
 
     def _shutoff_lowest_priority(self)-> None:
@@ -166,6 +166,14 @@ class DynamicBox():
         """Method that the Hbox and VBox are supposed to overwrite."""
         raise NotImplementedError
 
+    def get_win_min_dim(self, win : Window) -> Union[int,float]:
+        """Return the min dimension of the windows that the V or H box are intrested in."""
+        raise NotImplementedError
+        
+    def get_win_max_dim(self, win : Window) -> Union[int,float]:
+        """Return the max dimension of the windows that the V or H box are intrested in."""
+        raise NotImplementedError
+
     def resize(self, width : int, height : int) -> None:
         """Resize method if the class is a child."""
         # Update to the new dimension
@@ -176,10 +184,12 @@ class DynamicBox():
         """Move the windows so that the upper left corner is at new_x and new_y"""
         self._resize_routine(new_x, new_y)
 
-    def get_default_min_dim(self) -> int:
+    def get_default_min_dim(self) -> Dict[str,Union[float,int]]:
         """return the minimum dimension of a dynamic box."""
-        return min((x.window.get_default_min_dim() for x in self.window_list))
+        objs = [x.window.get_default_min_dim() for x in self.window_list]
+        return {"x":min([x["x"] for x in objs]),"y":min([x["y"] for x in objs])}
 
-    def get_default_max_dim(self) -> int:
+    def get_default_max_dim(self) -> Dict[str,Union[float,int]]:
         """return the minimum dimension of a dynamic box."""
-        return sum((x.window.get_default_max_dim() for x in self.window_list),0)
+        objs = [x.window.get_default_max_dim() for x in self.window_list]
+        return {"x":sum([x["x"] for x in objs],0),"y":sum([x["y"] for x in objs],0)}

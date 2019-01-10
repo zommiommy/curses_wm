@@ -1,6 +1,6 @@
 
 import curses
-from typing import List
+from typing import List, Dict, Union
 
 from .colours import CentralLineColour, GraphColour, GraphLegendColour
 from .window import Window
@@ -101,9 +101,9 @@ class Graph(Window):
         self._draw_graph()
         self._print_axis()
 
-    def get_default_min_dim(self) -> int:
-        """return the minimum dimension of the graph."""
+    def get_default_min_dim(self) -> Dict[str,Union[float,int]]:
+        """Return the MINIMUM dimension at which the window has sense, 3 means that smaller than 3x3 the window is useless."""
         if self.display_border:
-            return 5    
+            return {"x":5,"y":5}
         else:
-            return 3
+            return {"x":3,"y":3}

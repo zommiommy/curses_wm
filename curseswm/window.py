@@ -1,6 +1,6 @@
 
 import curses
-from typing import Tuple
+from typing import Tuple, Dict, Union
 
 from curseswm.colours import TextColour, BorderColour
 from .offsettable import offsettable_row, offsettable_col
@@ -168,14 +168,14 @@ class Window():
         self.height, self.width = height, width
         self.win.resize(self.height, self.width)
 
-    def get_default_min_dim(self) -> int:
+    def get_default_min_dim(self) -> Dict[str,Union[float,int]]:
         """Return the MINIMUM dimension at which the window has sense, 3 means that smaller than 3x3 the window is useless."""
         if self.display_border:
-            return 3
+            return {"x":3,"y":3}
         else:
-            return 1
+            return {"x":1,"y":1}
 
-    def get_default_max_dim(self) -> int:
+    def get_default_max_dim(self) -> Dict[str,Union[float,int]]:
         """Return the MAXIMUM dimension at which the window has sense, 3 means that bigger than 3x3 the window is useless."""
-        return float("inf")
+        return {"x":float("inf"),"y":float("inf")}
 
