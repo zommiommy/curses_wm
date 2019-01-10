@@ -57,7 +57,10 @@ class DynamicBox():
     def _find_first_displayed_window(self) -> BoxSubWindow:
         """Return the first window in list with display = True"""
         try:
-            return next((x for x in self.window_list if x.display))
+            # return the first window that is displayed and that have the actual_dim not set to the max dim so that in the case
+            # of all windows setted with the max this will return None and the _correct_dimensions will not trigger
+            # else it will get into an endless loop of correcting the dim and resetting it to the max.
+            return next((x for x in self.window_list if x.display and x.actual_dim != x.max_dimension))
         except StopIteration:
             return None
 
