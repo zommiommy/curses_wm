@@ -17,20 +17,16 @@ cli.add_tab(tab2)
 tab3 = Tab("Threads")
 cli.add_tab(tab3)
 
-progress_bars1 = VBox()
-progress_bars2 = VBox()
+progress_bars = VBox()
 pb = ProgressBar("# of pirates in the world","Smooth-style",style="smooth")
 pb2 = ProgressBar("hearth Cooling","Apt-get-style",style="apt-get")
 pb3 = ProgressBar("# of pastafarianism adepts","Htop-style",style="htop")
 pb4 = ProgressBar("# of cows","Equal-style",style="equal")
-progress_bars1.add_window(pb)
-progress_bars1.add_window(pb2)
-progress_bars2.add_window(pb3)
-progress_bars2.add_window(pb4)
-middle = HBox()
-middle.add_window(progress_bars1)
-middle.add_window(progress_bars2)
-tab2.set_window(middle)
+progress_bars.add_window(pb)
+progress_bars.add_window(pb2)
+progress_bars.add_window(pb3)
+progress_bars.add_window(pb4)
+tab2.set_window(progress_bars)
 
 # Create a vertical box
 main_box = VBox()
@@ -81,7 +77,7 @@ while True:
     pb2.set_percentage((i % n) / n)
     pb3.set_percentage((i % n) / n)
     pb4.set_percentage((i % n) / n)
-    g.add_point(sin(i/20))
+    g.add_point(sin(i/30))
 
     # Print position methods results
     processes.set_text(processes.get_first_col(), processes.get_first_row(), str((

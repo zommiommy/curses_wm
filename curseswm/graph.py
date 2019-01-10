@@ -119,7 +119,7 @@ class Graph(Window):
     def _get_symbol(self, y1, y2):
         """Given the pair of points return the symbols that correspond to them"""
         # If the values are in the same 3-chunk then assign them the related symbol
-        if abs(y1-y2) <= 3:
+        if int(y1/3) == int(y2/3):
             return self.symbols[(y1%3,y2%3)] 
         # Else if the second point is in a lower chunk than the first one return a symbol with the second point on the lower row
         elif y1 < y2:
@@ -141,7 +141,7 @@ class Graph(Window):
 
 
     def _print_zero_line(self):
-        """Print a central line of dots, this is used when the points ar all the same and max == min."""        
+        """Print a central line of dots, this is used when the points are all the same and max == min."""        
         for x in range(self.width):
             self.draw_text(x, self.get_mid_row(), self.symbols[(1,1)])
 
