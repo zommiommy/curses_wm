@@ -25,6 +25,12 @@ class Graph():
     def get_colour(self) -> Colour:
         return self.colour
 
+    def get_last_point(self) -> float:
+        if len(self.points) >= 1:
+            return self.points[-1]
+        else:
+            return float("nan")
+
     def _momentum_update(self, value : float, new_value : float) -> float:
         return value * self.momentum_rate + (1 - self.momentum_rate) * new_value
 

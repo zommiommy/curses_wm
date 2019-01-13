@@ -105,22 +105,25 @@ class GraphBox(Window):
 
     @horrible_workaround
     def _print_legend(self) -> None:
-        index = self.get_last_col()
+        index = self.get_last_col() + 2
 
         # Get the last cell occupied by the title
         min_index = self.get_title_len() + 1
-        
-        self.win.addstr(0,index," ")
 
         for g in self.graphs:
-            name = g.name
-            index -= (len(name) + 1)
+            output = "{name} {value:.3f}".format(name=g.name,value=g.get_last_point())
+            
+            index -= (len(output) + 1)
             # TODO print partial names
-            if min_index > index:
-                return
-            # Print the name of the graph
-            with g.get_colour()(self.win):
-                self.win.addstr(0,index," " + name)
+            if min_index <= index:
+                # Print the name of the graph
+                with g.get_colour()(self.win):
+                    self.win.addstr(0,index,output)
+            else:
+                n = index - min_index
+                with g.get_colour()(self.win):
+                    self.win.addstr(0,index-n,output[-n:])
+
 
 
     def _convert_point(self, points : List[float], coeff : float) -> List[int]:
