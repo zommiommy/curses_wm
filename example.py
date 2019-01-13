@@ -1,5 +1,5 @@
 
-from math import sin
+from math import sin, cos
 from time import sleep
 from curseswm import *
 
@@ -17,22 +17,23 @@ cli.add_tab(tab2)
 tab3 = Tab("Threads")
 cli.add_tab(tab3)
 
-progress_bars = VBox()
-pb = ProgressBar("# of pirates in the world","Smooth-style",style="smooth")
-pb2 = ProgressBar("hearth Cooling","Apt-get-style",style="apt-get")
-pb3 = ProgressBar("# of pastafarianism adepts","Htop-style",style="htop")
-pb4 = ProgressBar("# of cows","Equal-style",style="equal")
-progress_bars.add_window(pb)
-progress_bars.add_window(pb2)
-progress_bars.add_window(pb3)
-progress_bars.add_window(pb4)
-tab2.set_window(progress_bars)
 
 # Create a vertical box
 main_box = VBox()
 # Create a graph and add it to the vertical box
-g = Graph("Cpu Usage")
-main_box.add_window(g)
+g1 = Graph("Cpu Usage")
+g2 = Graph("Cpu Temp")
+g3 = Graph("Gpu Usage")
+g4 = Graph("Gpu Temp")
+
+gb = GraphBox("Example")
+
+gb.add_graph(g1)
+gb.add_graph(g2)
+gb.add_graph(g3)
+gb.add_graph(g4)
+
+main_box.add_window(gb)
 
 # Create a horizontal box
 central_box = HBox()
@@ -59,6 +60,10 @@ main_box.add_window(last_box, priority=0)
 
 tab.set_window(main_box)
 
+pb = ProgressBar("Bandwith Usage",style="smooth")
+pb2 = ProgressBar("Bandwith Usage",style="apt-get2")
+pb3 = ProgressBar("Bandwith Usage",style="htop")
+pb4 = ProgressBar("Bandwith Usage",style="equal")
 
 cli.set_refresh_rate(60)
 cli.start()
@@ -73,11 +78,16 @@ n = 1000
 while True:
     disk.set_text(disk.get_first_col(),disk.get_first_row(),"Time Enlapsed %d"%i)
     tab2.set_error_state(int(i/ 30) % 2 == 1)
-    pb.set_percentage((i % n) / n)
-    pb2.set_percentage((i % n) / n)
-    pb3.set_percentage((i % n) / n)
-    pb4.set_percentage((i % n) / n)
-    g.add_point(sin(i/30))
+    g1.add_point(sin(i/30))
+    g2.add_point(cos(i/30))
+    g3.add_point(-sin(i/30))
+    g4.add_point(-cos(i/30))
+
+    network.set_text(network.get_first_col(),network.get_first_row(),"Networks stuff")
+    network.add_text(network.get_first_col(),network.get_first_row(2),pb((i % n) / n, network.get_last_col() - network.get_first_col()))
+    network.add_text(network.get_first_col(),network.get_first_row(3),pb2((i % n) / n, network.get_last_col() - network.get_first_col()))
+    network.add_text(network.get_first_col(),network.get_first_row(4),pb3((i % n) / n, network.get_last_col() - network.get_first_col()))
+    network.add_text(network.get_first_col(),network.get_first_row(5),pb4((i % n) / n, network.get_last_col() - network.get_first_col()))
 
     # Print position methods results
     processes.set_text(processes.get_first_col(), processes.get_first_row(), str((

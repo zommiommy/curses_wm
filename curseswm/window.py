@@ -2,7 +2,7 @@
 import curses
 from typing import Tuple, Dict, Union
 
-from curseswm.colours import TextColour, BorderColour
+from .colours import TextColour, BorderColour
 from .offsettable import offsettable_row, offsettable_col
 from .horribleworkaround import horrible_workaround
 
@@ -121,6 +121,9 @@ class Window():
         """Set the new title of the window."""
         self.title = " " + new_title.strip() + " "
 
+    def get_title_len(self) -> int:
+        return len(self.title)
+
     @horrible_workaround
     def _move_window(self, new_x : int, new_y : int) -> None:
         """Move the windows so that the upper left corner is at new_x and new_y"""
@@ -134,7 +137,7 @@ class Window():
             self.win.border(0,0,0,0,0,0,0,0)
 
     def _draw_title(self) -> None:
-        """Draw ther title on the top of the window."""
+        """Draw the title on the top of the window."""
         if self.width > 1:
             self.win.addnstr(0, 1, self.title, self.width - 1)
 
@@ -143,17 +146,17 @@ class Window():
         if self.win:
             # Intro
             self._erase()
-            # Overridden stuff
-            self._refresh_overriden()
-            # Outro
             if self.display_border:
                 self._draw_border()
                 self._draw_title()
+            # Overridden stuff
+            self._refresh_overridden()
+            # Outro
             self.win.refresh()
 
     #@synchronized
-    def _refresh_overriden(self) -> None:
-        """Method to be overwritten by the subclasses to add the content."""
+    def _refresh_overridden(self) -> None:
+        """Method to be overridden by the subclasses to add the content."""
         # pass and not raise NotImplementedError so that Windows can be used for testing purposes
         pass
 
